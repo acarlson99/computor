@@ -17,22 +17,13 @@ import Term
 -- data PolyAnswer = PolyAnswer Reduced Degree Solution deriving (Show)
 data PolyAnswer = PolyAnswer String Float Float deriving (Show)
 
--- solvePoly :: String -> PolyAnswer
--- solvePoly st = do
---     let exprs = words st
---     eqidx <- elemIndex "=" exprs
---     PolyAnswer "A" 4.0 4.0
-
 maybeToEither _ (Just a) = Right a
 maybeToEither est Nothing = Left est
 
 stripWhitespace :: String -> String
-stripWhitespace = foldl (++) "" . words
+stripWhitespace = concat . words
 
 -- "1*X^3 + 2*X^7" =~ "[[:digit:]]+\\*X\\^[[:digit:]]+" :: [[String]]
-
--- ~ rgxFilter :: String -> [[String]]
--- ~ rgxFilter xs = filter (\a -> a /= ["","","","",""]) $ xs =~ "(([[:digit:]]+)\\*)?(X\\^([[:digit:]])+)?"
 rgxFilter :: String -> [String]
 rgxFilter xs = getAllTextMatches $ stripWhitespace xs =~ "[+\\-]? ?[[:digit:]]+(\\.[[:digit:]]+)?\\*X\\^-?[[:digit:]]+"
 
