@@ -25,7 +25,7 @@ stripWhitespace = concat . words
 
 -- "1*X^3 + 2*X^7" =~ "[[:digit:]]+\\*X\\^[[:digit:]]+" :: [[String]]
 rgxFilter :: String -> [String]
-rgxFilter xs = getAllTextMatches $ stripWhitespace xs =~ "[+\\-]? ?[[:digit:]]+(\\.[[:digit:]]+)?\\*X\\^-?[[:digit:]]+"
+rgxFilter xs = getAllTextMatches $ stripWhitespace xs =~ "[+\\-]?[[:digit:]]+(\\.[[:digit:]]+)?\\*?X\\^-?[[:digit:]]+"
 
 -- Split expression "1 * X^3 + 2 * X^2 = X^1.5"
 --             into (["1 * X^3", "2 * X^2"], ["X^1.5"])
@@ -47,4 +47,5 @@ solvePoly expr = do
     -- ~ (lhs, rhs) <- splitExpr expr
     let (lhs, rhs) = splitOn '=' expr
         f = map strToTerm . rgxFilter
-    return (f lhs, f rhs)
+        lhs' = foldl (\x y -> negateTerm y:x) (f lhs) (f rhs)
+    (f lhs, f rhs, lhs')
