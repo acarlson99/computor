@@ -42,6 +42,7 @@ strToTerm xs = Term (read' c) (read' f)
                     | n == "" = 1
                     | otherwise = read n
 
-termsToStr lhs = foldl f "" lhs
+termsToStr :: [Term] -> String
+termsToStr = foldl f ""
     where f x y | x == "" = show y
                 | otherwise = show y ++ " + " ++ x
