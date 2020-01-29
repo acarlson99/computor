@@ -2,6 +2,7 @@ module SolvePoly
     ( solvePoly
     , splitExpr
     , simplifyExpr
+    , sumTerms
     , rgxFilter
     ) where
 
@@ -36,10 +37,25 @@ splitExpr expr = do
     idx <- maybeToEither "Unable to find '=' sign" $ elemIndex "=" exprs
     return (unwords $ take idx exprs, unwords $ drop (idx + 1) exprs)
 
-simplifyExpr :: [Term] -> [Term]
-simplifyExpr = filter (\x -> termCoef x /= 0) . foldl (\x y -> f y ++ x) [] . map (\xs -> foldl (\x y -> x >>= addTerm y) (return $ Term 0 (termExp $ head xs)) xs) . sortBuckets termExp
+flipTheDamnMonad :: [Maybe Term] -> Maybe [Term]
+flipTheDamnMonad xs = foldl (\x y -> f x y) (Just []) xs
+    where f Nothing _ = Nothing
+          f _ Nothing = Nothing
+          f (Just x) (Just y) = Just (y:x)
+
+sumTerms :: [Term] -> Maybe [Term]
+sumTerms = foldl (\x y -> f x y) (Just []) . map (\xs -> foldl (\x y -> x >>= addTerm y) (return $ Term 0 (termExp $ head xs)) xs) . sortBuckets termExp
+    where f Nothing _ = Nothing
+          f _ Nothing = Nothing
+          f (Just x) (Just y) = Just (y:x)
+
+simplifyExpr :: [Term] -> Maybe [Term]
+simplifyExpr xs = sumTerms xs >>= (\ys -> return $ filter (\x -> termCoef x /= 0) ys)
     where f (Just x) = [x]
           f Nothing = []
+
+polyDegree :: [Term] -> Int
+polyDegree = foldl (\x y -> max x $ termExp y) minBound
 
 -- solvePoly :: String -> Either String PolyAnswer
 solvePoly expr = do
@@ -47,4 +63,5 @@ solvePoly expr = do
     let (lhs, rhs) = splitOn '=' expr
         f = map strToTerm . rgxFilter
         lhs' = foldl (\x y -> negateTerm y:x) (f lhs) (f rhs)
-    (f lhs, f rhs, lhs')
+    simplified <- maybeToEither ("Unable to simplify " ++ expr) $ simplifyExpr lhs'
+    return ((termsToStr simplified ++ " = 0"), simplified, polyDegree simplified)
