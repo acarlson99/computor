@@ -3,16 +3,15 @@ version:             0.1.0.0
 github:              "acarlson99/computor"
 license:             BSD3
 author:              "acarlson"
-maintainer:          "example@example.com"
+# maintainer:          "example@example.com"
 copyright:           "2020 acarlson"
 
 extra-source-files:
 - README.md
-- ChangeLog.md
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+synopsis:            Polynomial solver
+category:            Algorithm
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
@@ -30,17 +29,6 @@ executables:
   computor-exe:
     main:                Main.hs
     source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - computor
-
-tests:
-  computor-test:
-    main:                Spec.hs
-    source-dirs:         test
     ghc-options:
     - -threaded
     - -rtsopts
