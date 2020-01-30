@@ -90,7 +90,7 @@ runQuadratic ts 0 = "Degree zero.  One or zero solutions:"
                     -- ~ : if valOrZero ts 0 == 0 then (map show [1..]) else [ "None" ]
 runQuadratic ts 1 = [ "Degree one.  One solution:"
                     , show $ (-(valOrZero ts 0)) / valOrZero ts 1 ]
-runQuadratic ts 2 = quad (valOrZero ts 0) (valOrZero ts 1) (valOrZero ts 2)
+runQuadratic ts 2 = quad (valOrZero ts 2) (valOrZero ts 1) (valOrZero ts 0)
 runQuadratic _ degree = [ "Degree not less than 2.  Unable to solve" ]
 
 -- solvePoly :: String -> Either String PolyAnswer
