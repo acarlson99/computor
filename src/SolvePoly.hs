@@ -4,6 +4,10 @@ module SolvePoly
     , simplifyExpr
     , sumTerms
     , rgxFilter
+    , quad
+    , maybeToEither
+    , polyDegree
+    , runQuadratic
     ) where
 
 import Data.List
@@ -55,7 +59,39 @@ simplifyExpr xs = sumTerms xs >>= (return . filter (\x -> termCoef x /= 0))
           f Nothing = []
 
 polyDegree :: [Term] -> Int
-polyDegree = foldl (\x y -> max x $ termExp y) minBound
+polyDegree = foldl (\x y -> max x $ termExp y) 0
+
+quad :: Float -> Float -> Float -> [String]
+quad a b c = let r = (b ** 2) - (4 * a * c)
+                 f r a b
+                     | r > 0 = let disc = sqrt r
+                               in [ "Discriminant positive.  Two solutions:"
+                                  , show (((-b) - disc) / (2*a))
+                                  , show $ ((-b) + disc) / (2*a) ]
+                     | r < 0 = let res = sqrt (-r)
+                                   div = 2*a
+                                   lhs = show $ b/div
+                                   rhs = show $ res/div
+                               in [ "Discriminant negative.  Two solutions:"
+                                  , lhs ++ "+" ++ rhs ++ "i"
+                                  , lhs ++ "-" ++ rhs ++ "i" ]
+                     | otherwise = [ "Discriminant zero.  One solution:"
+                                   , show $ (-b) / (2*a) ]
+    in f r a b
+
+valOrZero :: [Term] -> Int -> Float
+valOrZero ts e = f [t | t <- ts, termExp t == e]
+    where f [] = 0
+          f (x:xs) = termCoef x
+
+runQuadratic :: [Term] -> Int -> [String]
+runQuadratic ts 0 = "Degree zero.  One or zero solutions:"
+                    : if valOrZero ts 0 == 0 then [ "Inf" ] else [ "None" ]
+                    -- ~ : if valOrZero ts 0 == 0 then (map show [1..]) else [ "None" ]
+runQuadratic ts 1 = [ "Degree one.  One solution:"
+                    , show $ (-(valOrZero ts 0)) / valOrZero ts 1 ]
+runQuadratic ts 2 = quad (valOrZero ts 0) (valOrZero ts 1) (valOrZero ts 2)
+runQuadratic _ degree = [ "Degree not less than 2.  Unable to solve" ]
 
 -- solvePoly :: String -> Either String PolyAnswer
 solvePoly expr = do
@@ -63,5 +99,7 @@ solvePoly expr = do
     let (lhs, rhs) = splitOn '=' expr
         f = map strToTerm . rgxFilter
         lhs' = foldl (\x y -> negateTerm y:x) (f lhs) (f rhs)
-    simplified <- maybeToEither ("Unable to simplify " ++ expr) $ simplifyExpr lhs'
-    return (termsToStr simplified ++ " = 0", simplified, polyDegree simplified)
+    simplified <- maybeToEither ("Unable to simplify expression: " ++ expr) $ simplifyExpr lhs'
+    return ( termsToStr simplified ++ " = 0"
+           , polyDegree simplified
+           , runQuadratic simplified $ polyDegree simplified)
