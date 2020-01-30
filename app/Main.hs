@@ -12,7 +12,7 @@ printPolyRes (Right (a,b,c)) = do
 main :: IO ()
 main = do
     args <- getArgs
-    if length args /= 1 then
-        putStrLn "No"
+    if length args < 1 then
+        putStrLn "usage: stack run [polynomial]"
     else
-        printPolyRes $ solvePoly $ head args
+        mapM_ (printPolyRes . solvePoly) args
