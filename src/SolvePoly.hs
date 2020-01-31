@@ -8,20 +8,18 @@ module SolvePoly
     , maybeToEither
     , polyDegree
     , runQuadratic
+    , printPolyRes
     ) where
 
 import Data.List
 import Text.Regex.Posix
 
-import Term
+import PolyTerm
 import Util
 
 -- data Reduced = String deriving (Show)
 -- data Degree = Float deriving (Show)
 -- data Solution = Float deriving (Show)
-
--- data PolyAnswer = PolyAnswer Reduced Degree Solution deriving (Show)
-data PolyAnswer = PolyAnswer String Float Float deriving (Show)
 
 maybeToEither _ (Just a) = Right a
 maybeToEither est Nothing = Left est
@@ -91,9 +89,8 @@ runQuadratic ts 0 = "Degree zero.  One or zero solutions:"
 runQuadratic ts 1 = [ "Degree one.  One solution:"
                     , show $ (-(valOrZero ts 0)) / valOrZero ts 1 ]
 runQuadratic ts 2 = quad (valOrZero ts 2) (valOrZero ts 1) (valOrZero ts 0)
-runQuadratic _ degree = [ "Degree not less than 2.  Unable to solve" ]
+runQuadratic _ degree = [ "Degree greater than 2.  Unable to solve" ]
 
--- solvePoly :: String -> Either String PolyAnswer
 solvePoly expr = do
     -- ~ (lhs, rhs) <- splitExpr expr
     let (lhs, rhs) = splitOn '=' expr
@@ -103,3 +100,9 @@ solvePoly expr = do
     return ( termsToStr simplified ++ " = 0"
            , polyDegree simplified
            , runQuadratic simplified $ polyDegree simplified)
+
+printPolyRes (Left s) = putStrLn $ "ERROR: " ++ s
+printPolyRes (Right (a,b,c)) = do
+    putStrLn $ "Simplified form: " ++ a
+    putStrLn $ "Degree: " ++ show b
+    mapM_ putStrLn c

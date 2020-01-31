@@ -1,18 +1,23 @@
 module Main where
 
 import System.Environment
-import SolvePoly
 
-printPolyRes (Left s) = putStrLn $ "ERROR: " ++ s
-printPolyRes (Right (a,b,c)) = do
-    putStrLn $ "Simplified form: " ++ a
-    putStrLn $ "Degree: " ++ show b
-    mapM_ putStrLn c
+import SolvePoly
+import Interpreter
+
+printUsage = do
+    putStrLn "usage: stack run (help|poly|repl) [args]"
+    putStrLn "       poly - evaluate polynomial"
+    putStrLn "              stack run poly \"3X^2 + 2X = -4\""
+    putStrLn "       repl - run repl.  NOTE: not yet implemented"
+    putStrLn "       help - help message"
+
+runComp ("help":xs) = printUsage
+runComp ("poly":x:xs) = mapM_ (printPolyRes . solvePoly) $ x:xs
+runComp ("repl":xs) = interpret xs
+runComp _ = printUsage
 
 main :: IO ()
 main = do
     args <- getArgs
-    if length args < 1 then
-        putStrLn "usage: stack run [polynomial]"
-    else
-        mapM_ (printPolyRes . solvePoly) args
+    runComp args
