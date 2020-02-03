@@ -35,7 +35,6 @@ negateTerm (Term c f) = Term (-c) f
 termReg :: String
 termReg = "\\+?(-?[[:digit:]]+(\\.?[[:digit:]]+)?)?\\*?(X(\\^([[:digit:]]+))?)?"
 
--- strToTerm "1*X^3" :: Term 1 3
 strToTerm :: String -> Term
 strToTerm xs = Term (read' c) (read' f)
           where ([_,c,_,x,_,f]:_) = xs =~ termReg :: [[String]]

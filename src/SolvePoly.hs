@@ -17,17 +17,12 @@ import Text.Regex.Posix
 import PolyTerm
 import Util
 
--- data Reduced = String deriving (Show)
--- data Degree = Float deriving (Show)
--- data Solution = Float deriving (Show)
-
 maybeToEither _ (Just a) = Right a
 maybeToEither est Nothing = Left est
 
 stripWhitespace :: String -> String
 stripWhitespace = concat . words
 
--- "1*X^3 + 2*X^7" =~ "[[:digit:]]+\\*X\\^[[:digit:]]+" :: [[String]]
 rgxFilter :: String -> [String]
 rgxFilter xs = getAllTextMatches $ stripWhitespace xs =~ termReg
 
@@ -85,14 +80,12 @@ valOrZero ts e = f [t | t <- ts, termExp t == e]
 runQuadratic :: [Term] -> Int -> [String]
 runQuadratic ts 0 = "Degree zero.  One or zero solutions:"
                     : if valOrZero ts 0 == 0 then [ "Inf" ] else [ "None" ]
-                    -- ~ : if valOrZero ts 0 == 0 then (map show [1..]) else [ "None" ]
 runQuadratic ts 1 = [ "Degree one.  One solution:"
                     , show $ (-(valOrZero ts 0)) / valOrZero ts 1 ]
 runQuadratic ts 2 = quad (valOrZero ts 2) (valOrZero ts 1) (valOrZero ts 0)
 runQuadratic _ degree = [ "Degree greater than 2.  Unable to solve" ]
 
 solvePoly expr = do
-    -- ~ (lhs, rhs) <- splitExpr expr
     let (lhs, rhs) = splitOn '=' expr
         f = map strToTerm . rgxFilter
         lhs' = foldl (\x y -> negateTerm y:x) (f lhs) (f rhs)
