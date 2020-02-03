@@ -68,7 +68,7 @@ quad a b c = let r = (b ** 2) - (4 * a * c)
                                   , show $ ((-b) + disc) / (2*a) ]
                      | r < 0 = let res = sqrt (-r)
                                    div = 2*a
-                                   lhs = show $ b/div
+                                   lhs = show $ (-b)/div
                                    rhs = show $ res/div
                                in [ "Discriminant negative.  Two solutions:"
                                   , lhs ++ "+" ++ rhs ++ "i"
