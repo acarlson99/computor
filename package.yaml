@@ -21,6 +21,7 @@ description:         Please see the README on GitHub at <https://github.com/acar
 dependencies:
 - base >= 4.7 && < 5
 - regex-posix
+- matrix
 
 library:
   source-dirs: src
@@ -29,6 +30,17 @@ executables:
   computor-exe:
     main:                Main.hs
     source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - computor
+
+tests:
+  computor-test:
+    main:                Spec.hs
+    source-dirs:         test
     ghc-options:
     - -threaded
     - -rtsopts
