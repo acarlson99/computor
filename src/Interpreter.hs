@@ -6,13 +6,13 @@ import System.IO
 
 import Parser
 
-interpret :: [String] -> IO ()
-interpret _ = do
-    putStr "COMP> "
+interpret :: Int -> [String] -> IO ()
+interpret linenum _ = do
+    putStr $ show linenum ++ " > "
     hFlush stdout
     ineof <- isEOF
     if ineof
     then return ()
     else do ln <- getLine
             putStrLn $ readExpr ln
-            interpret []
+            interpret (linenum + 1) []
