@@ -4,13 +4,15 @@ module Interpreter
 
 import System.IO
 
+import Parser
+
 interpret :: [String] -> IO ()
 interpret _ = do
-    putStr "> "
+    putStr "COMP> "
     hFlush stdout
     ineof <- isEOF
     if ineof
     then return ()
     else do ln <- getLine
-            putStrLn ln
+            putStrLn $ readExpr ln
             interpret []
