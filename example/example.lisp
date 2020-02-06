@@ -59,9 +59,9 @@
 
 ## Complex
 
-(def c1 (complex 1 2))
+(def c1 (+ 1 2i))
 # (1.0+2.0i)
-(def c2 (complex 3 4))
+(def c2 (+ 3 4i))
 # (3.0+4.0i)
 (+ c1 c2)
 # (4.0+6.0i)
