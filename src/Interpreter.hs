@@ -4,7 +4,7 @@ module Interpreter
 
 import System.IO
 
-import Parser
+import Parser.Parser
 
 interpret :: Int -> [String] -> IO ()
 interpret linenum _ = do

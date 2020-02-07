@@ -1,7 +1,10 @@
 import Control.Monad
 
-import Parser
-import Parsing
+import Parser.Parser
+import Parser.Primitive
+import Parser.Parsing
+
+import qualified Types as T
 
 comp f _ (inp,outp) = let outp' = show $ parse f inp
     in if outp == outp'
@@ -43,9 +46,17 @@ parseIdentifierTest =
         gentest (i,_)       = show $ [(Identifier i, "")]
     in test inps outps gentest parseIdentifier
 
+parseComplexTest =
+    let inps  = [     "12i",     "3.2i",      "-2.4i",   "1.3" ]
+        outps = [ Just 12  , Just 3.2  , Just (-2.4) , Nothing ]
+        gentest (_,Nothing) = "[]"
+        gentest (_,Just n)  = show [(Complex $ T.Complex (0,n), "")]
+    in test inps outps gentest parseComplex
+
 main :: IO ()
 main = mapM_ runTest
     [ parseFloatTest
     , parseNumberTest
     , parseIdentifierTest
+    , parseComplexTest
     ]
