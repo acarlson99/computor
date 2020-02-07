@@ -1,42 +1,3 @@
-DIGIT:
-    | [0-9]
-
-LETTER:
-    | [a-z]
-    | [A-Z]
-
-SYMBOL:
-    | !
-    | #
-    | $
-    | %
-    | &
-    | |
-    | *
-    | +
-    | -
-    | /
-    | :
-    | <
-    | =
-    | >
-    | ?
-    | @
-    | ^
-    | _
-    | ~
-
-OPERATOR:
-    | +
-    | -
-    | *
-    | /
-    | **
-
-EOL:
-    | [ \t]+ $
-    | $
-
 LINE:
     | IDENTIFIER\(IDENTIFIER*\) = EXPR EOL  # function definition
     | IDENTIFIER = EXPR EOL                 # variable definition
@@ -53,34 +14,34 @@ OPERATION:
     | VALUE OPERATOR EXPR
 
 VALUE:
-    | IDENTIFIER
-    | NUMBER
+    | ARRAY
     | MATRIX
+    | PRIMITIVE
 
-NUMBER:
-    | COMPLEX
-    | REALNUM
-
-REALNUM:
-    | FLOAT
-    | INT
-
-FLOAT:
-    | INT \.[0-9]*
-
-INT:
-    | -?[0-9]+
-
-COMPLEX:
-    | REALNUM i
-    | i
-
-MTX_CONTENT:
+ARRAY:
     | \[EXPR\]
     | \[EXPR(?:,EXPR)*\]
 
 MATRIX:
-    | \[MTX_CONTENT(?:;MTX_CONTENT)*\]
+    | \[ARRAY(?:;ARRAY)*\]
+
+# IMPLEMENTED
+
+PRIMITIVE:
+    | IDENTIFIER
+    | COMPLEX
+    | FLOAT
+    | INT
 
 IDENTIFIER:
     | LETTER (?:DIGIT|SYMBOL|LETTER)+
+
+INT:
+    | -?[0-9]+
+
+FLOAT:
+    | INT \.[0-9]*
+
+COMPLEX:
+    | (FLOAT|INT) i
+    | i

@@ -1,5 +1,7 @@
 module Parser.Parser
     ( readExpr
+    , parseArray
+    , parseMatrix
     ) where
 
 import Control.Monad
@@ -20,7 +22,24 @@ Operator precedence
 =       -- assignment
 -}
 
-parseExpr = parseNumber
+parseExpr = parseIdentifier
+    <|> parseComplex
+    <|> parseFloat
+    <|> parseNumber
+-- TODO: add more expressions (paren, operation, funcall)
+
+parseArrOnDelim delim fn = do
+    char '['
+    x <- fn
+    xs <- many (char delim >> fn)
+    char ']'
+    return $ x:xs
+
+parseArray = Array <$> parseArrOnDelim ',' parseExpr
+
+parseMatrix = Matrix <$> parseArrOnDelim ';' parseArray
+
+-- ~ parseExpr = parseNumber
 
 readExpr :: String -> String
-readExpr = show . parse parseFloat
+readExpr = show . parse parseExpr

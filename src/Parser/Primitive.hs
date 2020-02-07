@@ -3,10 +3,9 @@ module Parser.Primitive
     , parseFloat
     , parseComplex
     , parseIdentifier
-    , parseMatrix
-    , ParseTree (..)
 
-    , parseArray
+    , parsePrimitive
+    , ParseTree (..)
     ) where
 
 import qualified Types as T
@@ -62,23 +61,12 @@ parseComplex = do
     n <- (floating <|> intAsFloat)
     char 'i'
     return $ Complex $ T.Complex (0,n)
+    <|> do
+        char 'i'
+        return $ Complex $ T.Complex (0,1)
 
-parseExpr = parseIdentifier
-    <|> parseComplex
+parsePrimitive =
+        parseComplex
+    <|> parseIdentifier
     <|> parseFloat
     <|> parseNumber
--- TODO: add more expressions (paren, operation, funcall)
-
-parseArray = do
-    char '['
-    x <- parseExpr
-    xs <- many (char ',' >> parseExpr)
-    char ']'
-    return $ Array $ x:xs
-
-parseMatrix = do
-    char '['
-    x <- parseArray
-    xs <- many (char ';' >> parseArray)
-    char ']'
-    return $ Matrix $ x:xs
