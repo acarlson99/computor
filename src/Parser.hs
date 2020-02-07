@@ -1,104 +1,71 @@
 module Parser
     ( readExpr
-    -- ~ , symbol
-    -- ~ , parseString
-    -- ~ , parseAtom
-    -- ~ , parseNumber
-    -- ~ , parseFloat
-    -- ~ , parseExpr
+    , parseNumber
+    , parseIdentifier
+    , parseFloat
+    , ParseTree (..)
     ) where
 
--- ~ import Text.Megaparsec
-import Text.ParserCombinators.Parsec hiding (spaces)
 import Control.Monad
+
+import Parsing
 
 import qualified Types as T
 
-data LispVal = Atom String
-             | List [LispVal]
-             | DottedList [LispVal] LispVal
-             | Number Integer
-             | String String
-             | Bool Bool
-             | Float Float
-             | Complex (T.Complex Float)
-             deriving (Show)
+data ParseTree = Expr [ParseTree]
+               | Assignment ([String], ParseTree)
+               | Identifier String
+               | Operator Char
+               | Operation (Char, [ParseTree])
+               | Number Int
+               | Float Float
+               | Complex (T.Complex Float)
+               deriving (Show)
 
-symbol :: Parser Char
-symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
+{-
+Operator precedence
 
-spaces :: Parser ()
-spaces = skipMany (space <|> newline)
+-       -- unary minus
+()      -- paren/subexpression
+^       -- exponent
+*/      -- multiplication/division
++-      -- addition/subtraction
 
-parseString :: Parser LispVal
-parseString = do
-    char '"'
-    x <- many (noneOf "\"")
-    char '"'
-    return $ String x
+=       -- assignment
+-}
 
-parseAtom :: Parser LispVal
-parseAtom = do
-    first <- letter <|> symbol
-    rest <- many (letter <|> digit <|> symbol)
-    let atom = first:rest
-    return $ case atom of
-        "#t" -> Bool True
-        "#f" -> Bool False
-        _    -> Atom atom
+parseExpr = parseNumber
 
--- NOTE: add negative number parsing
--- NOTE: maybe consolidate parseNumber and parseFloat
-parseNumber' :: Parser String
-parseNumber' = many1 digit
+parseNumber = Number <$> integer
 
-parseNumber :: Parser LispVal
-parseNumber = liftM (Number . read) $ parseNumber'
+parseIdentifier = Identifier <$> identifier
 
-parseFloat' :: Parser String
+parseFloat' :: Parser Float
 parseFloat' = do
-    n <- many1 digit
+    lhs <- fromIntegral <$> natural
     char '.'
-    n' <- many1 digit
-    return $ n ++ '.':n'
+    rhs <- many digit
+    if rhs == ""
+    then return $ lhs
+    else return $ lhs + read ("0." ++ rhs)
 
-parseFloat :: Parser LispVal
-parseFloat = liftM (Float . read) parseFloat'
+floating = do
+    char '-'
+    num <- parseFloat'
+    return $ negate num
+    <|> parseFloat'
 
-parseComplex :: Parser LispVal
-parseComplex = do
-    n <- (try parseFloat' <|> parseNumber')
-    char 'i'
-    return $ Complex $ T.Complex (0, read n)
+parseFloat = Float <$> token floating
 
-parseList :: Parser LispVal
-parseList = liftM List $ sepBy parseExpr spaces
+-- NOTE: not guarenteed to work
+-- ~ intAsFloat = do
+    -- ~ n <- integer
+    -- ~ return $ fromIntegral n
 
-parseDottedList :: Parser LispVal
-parseDottedList = do
-    head <- endBy parseExpr spaces
-    tail <- char '.' >> spaces >> parseExpr
-    return $ DottedList head tail
-
-parseQuoted :: Parser LispVal
-parseQuoted = do
-    char '\''
-    x <- parseExpr
-    return $ List [Atom "quote", x]
-
-parseExpr :: Parser LispVal
-parseExpr = spaces >> (parseAtom
-        <|> parseString
-        <|> try parseComplex
-        <|> try parseFloat
-        <|> parseNumber
-        <|> parseQuoted
-        <|> do char '('
-               x <- try parseList <|> parseDottedList
-               char ')'
-               return x)
+-- ~ parseComplex = do
+    -- ~ n <- (floating <|> f)
+    -- ~ char 'i'
+    -- ~ return $ Complex $ T.Complex (0,n)
 
 readExpr :: String -> String
-readExpr input = case parse parseExpr "lisp" input of
-    Left err -> "No match: " ++ show err
-    Right val -> "Found value" ++ show val
+readExpr = show . parse parseFloat

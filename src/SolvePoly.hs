@@ -34,12 +34,6 @@ splitExpr expr = do
     idx <- maybeToEither "Unable to find '=' sign" $ elemIndex "=" exprs
     return (unwords $ take idx exprs, unwords $ drop (idx + 1) exprs)
 
-flipTheDamnMonad :: [Maybe Term] -> Maybe [Term]
-flipTheDamnMonad = foldl f (Just [])
-    where f Nothing _ = Nothing
-          f _ Nothing = Nothing
-          f (Just x) (Just y) = Just (y:x)
-
 sumTerms :: [Term] -> Maybe [Term]
 sumTerms = foldl f (Just []) . map (\xs -> foldl (\x y -> x >>= addTerm y) (return $ Term 0 (termExp $ head xs)) xs) . sortBuckets termExp
     where f Nothing _ = Nothing
