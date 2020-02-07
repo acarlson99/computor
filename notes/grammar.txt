@@ -1,0 +1,86 @@
+DIGIT:
+    | [0-9]
+
+LETTER:
+    | [a-z]
+    | [A-Z]
+
+SYMBOL:
+    | !
+    | #
+    | $
+    | %
+    | &
+    | |
+    | *
+    | +
+    | -
+    | /
+    | :
+    | <
+    | =
+    | >
+    | ?
+    | @
+    | ^
+    | _
+    | ~
+
+OPERATOR:
+    | +
+    | -
+    | *
+    | /
+    | **
+
+EOL:
+    | [ \t]+ $
+    | $
+
+LINE:
+    | IDENTIFIER\(IDENTIFIER*\) = EXPR EOL  # function definition
+    | IDENTIFIER = EXPR EOL                 # variable definition
+    | EXPR EOL                              # some other expression
+
+EXPR:
+    | IDENTIFIER\(EXPR*\)                   # function call
+    | OPERATION                             # a + b     1 + 2
+    | VALUE                                 # 12.4      evaluates to 12.4
+    | \(EXPR\)
+    # add paren
+
+OPERATION:
+    | VALUE OPERATOR EXPR
+
+VALUE:
+    | IDENTIFIER
+    | NUMBER
+    | MATRIX
+
+NUMBER:
+    | COMPLEX
+    | REALNUM
+
+REALNUM:
+    | FLOAT
+    | INT
+
+FLOAT:
+    | INT \.[0-9]*
+
+INT:
+    | -?[0-9]+
+
+COMPLEX:
+    | REALNUM i
+    | i
+
+MTX_CONTENT:
+    | \[EXPR\]
+    | \[EXPR(?:,EXPR)*\]
+
+MATRIX:
+    | \[MTX_CONTENT(?:;MTX_CONTENT)*\]
+
+IDENTIFIER:
+    | LETTER (?:DIGIT|SYMBOL|LETTER)+

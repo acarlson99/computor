@@ -1,0 +1,5 @@
+TODO:
+    - lexer blueprint
+    - generate parse tree
+    - walk parse tree
+    - make types and functions work
