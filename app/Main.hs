@@ -2,7 +2,7 @@ module Main where
 
 import System.Environment
 
-import SolvePoly
+import Poly.Solve
 import Interpreter
 
 printUsage = do

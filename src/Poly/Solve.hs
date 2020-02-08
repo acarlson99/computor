@@ -1,4 +1,4 @@
-module SolvePoly
+module Poly.Solve
     ( solvePoly
     , splitExpr
     , simplifyExpr
@@ -14,7 +14,7 @@ module SolvePoly
 import Data.List
 import Text.Regex.Posix
 
-import PolyTerm
+import Poly.Term
 import Util
 
 maybeToEither _ (Just a) = Right a

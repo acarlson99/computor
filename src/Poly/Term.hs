@@ -1,4 +1,4 @@
-module PolyTerm
+module Poly.Term
     ( Term (..)
     , addTerm
     , subTerm
