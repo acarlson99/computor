@@ -3,6 +3,7 @@ import Control.Monad
 import Parser.Parser
 import Parser.Primitive
 import Parser.Parsing
+import Parser.Types
 
 import qualified Types as T
 

@@ -14,20 +14,8 @@ module Parser.Primitive
 
 import qualified Types as T
 import Parser.Parsing
-
-data ParseTree = Number Int
-               | Float Float
-               | Identifier String
-               | Complex (T.Complex Float)
-
-               | Array [ParseTree]                  -- [Value]
-               | Matrix [ParseTree]                 -- [Array]
-               | Funcall (ParseTree, [ParseTree])   -- (String, [Values])
-               -- ~ | Expr [ParseTree]
-               -- ~ | Assignment ([String], ParseTree)
-               -- ~ | Operator Char
-               -- ~ | Operation (Char, [ParseTree])
-               deriving (Show)
+import Parser.Operations
+import Parser.Types
 
 parseNumber = Number <$> integer
 
@@ -56,8 +44,7 @@ intAsFloat = do
     n <- int
     return $ fromIntegral n
 
-comp =
-    T.complex <$> ((float <|> intAsFloat) >>= (\a -> char 'i' >> return a))
+comp = T.complex <$> (float <|> intAsFloat) <* char 'i'
     <|> do
         token $ string "-i"
         return $ T.Complex (0,-1)
@@ -75,7 +62,7 @@ parsePrimitive =
     <|> parseFloat
     <|> parseNumber
     <|> do
-        char ')'
-        x <- parsePrimitive
         char '('
+        x <- parsePrimitive
+        char ')'
         return x

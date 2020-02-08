@@ -6,9 +6,10 @@ module Parser.Parser
 
 import Control.Monad
 
-import qualified Types as T
 import Parser.Parsing
 import Parser.Primitive
+import Parser.Operations
+import Parser.Types
 
 {-
 Operator precedence
@@ -35,13 +36,23 @@ parseExpr = parseFuncall
     <|> parsePrimitive
     <|> parseArray
     <|> parseMatrix
+    <|> do
+        char '('
+        x <- parseExpr
+        char ')'
+        return x
 -- TODO: add more expressions (paren, operation, funcall)
 
-funcall = do
-    id <- parseIdentifier
-    char '('
-    char ')'
-    return (id, [])
+funcall =  let f = parseIdentifier <* char '('
+    in do
+        id <- f
+        char ')'
+        return (id, [])
+    <|> do
+        id <- f
+        xs <- (:) <$> parseExpr <*> many (char ',' >> parseExpr)
+        char ')'
+        return (id, xs)
 
 parseFuncall = Funcall <$> funcall
 
