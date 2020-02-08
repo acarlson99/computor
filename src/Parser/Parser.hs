@@ -7,7 +7,7 @@ module Parser.Parser
 import Control.Monad
 
 import Parser.Parsing
-import Parser.Primitive
+import Parser.Primitives
 import Parser.Operations
 import Parser.Types
 

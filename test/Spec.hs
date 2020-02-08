@@ -1,7 +1,7 @@
 import Control.Monad
 
 import Parser.Parser
-import Parser.Primitive
+import Parser.Primitives
 import Parser.Parsing
 import Parser.Types
 

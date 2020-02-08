@@ -1,4 +1,4 @@
--- ~ module Parser.Primitive
+-- ~ module Parser.Primitives
     -- ~ ( parseNumber
     -- ~ , parseFloat
     -- ~ , parseComplex
@@ -8,8 +8,8 @@
     -- ~ , ParseTree (..)
     -- ~ ) where
 
-module Parser.Primitive
-    ( module Parser.Primitive
+module Parser.Primitives
+    ( module Parser.Primitives
     ) where
 
 import qualified Types as T
