@@ -13,7 +13,7 @@ printUsage = do
     putStrLn "       help - help message"
 
 runComp ("help":xs) = printUsage
-runComp ("poly":x:xs) = mapM_ (printPolyRes . solvePoly) $ x:xs
+runComp ("poly":x:xs) = mapM_ (printRes . solve) $ x:xs
 runComp ("repl":xs) = interpret 0 xs
 runComp _ = printUsage
 

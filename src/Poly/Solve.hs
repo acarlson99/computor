@@ -1,14 +1,6 @@
 module Poly.Solve
-    ( solvePoly
-    , splitExpr
-    , simplifyExpr
-    , sumTerms
-    , rgxFilter
-    , quad
-    , maybeToEither
-    , polyDegree
-    , runQuadratic
-    , printPolyRes
+    ( solve
+    , printRes
     ) where
 
 import Data.List
@@ -45,8 +37,8 @@ simplifyExpr xs = sumTerms xs >>= (return . filter (\x -> termCoef x /= 0))
     where f (Just x) = [x]
           f Nothing = []
 
-polyDegree :: [Term] -> Int
-polyDegree = foldl (\x y -> max x $ termExp y) 0
+degree :: [Term] -> Int
+degree = foldl (\x y -> max x $ termExp y) 0
 
 quad :: Float -> Float -> Float -> [String]
 quad a b c = let r = (b ** 2) - (4 * a * c)
@@ -79,17 +71,17 @@ runQuadratic ts 1 = [ "Degree one.  One solution:"
 runQuadratic ts 2 = quad (valOrZero ts 2) (valOrZero ts 1) (valOrZero ts 0)
 runQuadratic _ degree = [ "Degree greater than 2.  Unable to solve" ]
 
-solvePoly expr = do
+solve expr = do
     let (lhs, rhs) = splitOn '=' expr
         f = map strToTerm . rgxFilter
         lhs' = foldl (\x y -> negateTerm y:x) (f lhs) (f rhs)
     simplified <- maybeToEither ("Unable to simplify expression: " ++ expr) $ simplifyExpr lhs'
     return ( termsToStr simplified ++ " = 0"
-           , polyDegree simplified
-           , runQuadratic simplified $ polyDegree simplified)
+           , degree simplified
+           , runQuadratic simplified $ degree simplified)
 
-printPolyRes (Left s) = putStrLn $ "ERROR: " ++ s
-printPolyRes (Right (a,b,c)) = do
+printRes (Left s) = putStrLn $ "ERROR: " ++ s
+printRes (Right (a,b,c)) = do
     putStrLn $ "Simplified form: " ++ a
     putStrLn $ "Degree: " ++ show b
     mapM_ putStrLn c
