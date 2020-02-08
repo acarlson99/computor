@@ -12,8 +12,9 @@ module Parser.Primitives
     ( module Parser.Primitives
     ) where
 
+import Parsing
+
 import qualified Types as T
-import Parser.Parsing
 import Parser.Operations
 import Parser.Types
 

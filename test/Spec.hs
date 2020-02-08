@@ -1,8 +1,9 @@
 import Control.Monad
 
+import Parsing
+
 import Parser.Parser
 import Parser.Primitives
-import Parser.Parsing
 import Parser.Types
 
 import qualified Types as T

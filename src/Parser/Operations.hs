@@ -3,8 +3,9 @@ module Parser.Operations
     , parseOperation
     ) where
 
+import Parsing
+
 import Parser.Types
-import Parser.Parsing
 
 oper = string "+"
    <|> string "-"

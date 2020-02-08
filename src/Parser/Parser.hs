@@ -6,7 +6,8 @@ module Parser.Parser
 
 import Control.Monad
 
-import Parser.Parsing
+import Parsing
+
 import Parser.Primitives
 import Parser.Operations
 import Parser.Types
@@ -34,8 +35,8 @@ Operator precedence
 
 parseExpr = parseFuncall
     <|> parsePrimitive
-    <|> parseArray
     <|> parseMatrix
+    <|> parseArray
     <|> do
         char '('
         x <- parseExpr
@@ -57,11 +58,15 @@ funcall =  let f = parseIdentifier <* char '('
 parseFuncall = Funcall <$> funcall
 
 parseArrOnDelim delim fn = do
-    char '['
-    x <- fn
-    xs <- many (char delim >> fn)
-    char ']'
-    return $ x:xs
+        char '['
+        x <- fn
+        xs <- many (char delim >> fn)
+        char ']'
+        return $ x:xs
+    <|> do
+        char '['
+        char ']'
+        return []
 
 array = parseArrOnDelim ',' parseExpr
 
