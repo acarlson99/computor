@@ -74,8 +74,8 @@ parsePrimitive =
     <|> parseIdentifier
     <|> parseFloat
     <|> parseNumber
-    -- ~ <|> do
-        -- ~ char '('
-        -- ~ x <- parsePrimitive
-        -- ~ char '('
-        -- ~ return x
+    <|> do
+        char ')'
+        x <- parsePrimitive
+        char '('
+        return x
