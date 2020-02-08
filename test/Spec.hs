@@ -6,13 +6,13 @@ import Parser.Parsing
 
 import qualified Types as T
 
-comp f _ (inp,outp) = let outp' = show $ parse f inp
+compInOut f _ (inp,outp) = let outp' = show $ parse f inp
     in if outp == outp'
     then Right True
     else fail $ "INP " ++ inp ++ " EXPECTED " ++ outp ++ " GOT " ++ outp'
 
 test inps outps genf testf =
-    foldM (comp testf) True
+    foldM (compInOut testf) True
         $ zip inps $ map genf $ zip inps outps
 
 runTest f = do

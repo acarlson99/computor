@@ -1,5 +1,6 @@
 module Types
     ( Complex (..)
+    , complex
     ) where
 
 import Data.Matrix
@@ -23,3 +24,5 @@ instance (Show a, Num a, Ord a) => Show (Complex a) where
         | a == 0 = "(" ++ show b ++ "i" ++ ")"
         | b < 0  = "(" ++ show a ++ show b ++ "i" ++ ")"
         | otherwise = "(" ++ show a ++ "+" ++ show b ++ "i" ++ ")"
+
+complex n = Complex (0,n)

@@ -22,11 +22,28 @@ Operator precedence
 =       -- assignment
 -}
 
-parseExpr = parseIdentifier
-    <|> parseComplex
-    <|> parseFloat
-    <|> parseNumber
+-- ~ parseExpr :: Parser [ParseTree]
+-- ~ parseExpr = do
+    -- ~ x <- parsePrimitive
+    -- ~ xs <- parseExpr
+    -- ~ return $ x:xs
+    -- ~ <|> do
+    -- ~ xs <- parsePrimitive
+    -- ~ return xs
+
+parseExpr = parseFuncall
+    <|> parsePrimitive
+    <|> parseArray
+    <|> parseMatrix
 -- TODO: add more expressions (paren, operation, funcall)
+
+funcall = do
+    id <- parseIdentifier
+    char '('
+    char ')'
+    return (id, [])
+
+parseFuncall = Funcall <$> funcall
 
 parseArrOnDelim delim fn = do
     char '['
@@ -35,9 +52,14 @@ parseArrOnDelim delim fn = do
     char ']'
     return $ x:xs
 
-parseArray = Array <$> parseArrOnDelim ',' parseExpr
+array = parseArrOnDelim ',' parseExpr
 
-parseMatrix = Matrix <$> parseArrOnDelim ';' parseArray
+parseArray = Array <$> array
+-- ~ parseArray = Array <$> parseArrOnDelim ',' parseExpr
+
+matrix = parseArrOnDelim ';' parseArray
+
+parseMatrix = Matrix <$> matrix
 
 -- ~ parseExpr = parseNumber
 

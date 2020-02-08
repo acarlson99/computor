@@ -1,22 +1,28 @@
-module Parser.Primitive
-    ( parseNumber
-    , parseFloat
-    , parseComplex
-    , parseIdentifier
+-- ~ module Parser.Primitive
+    -- ~ ( parseNumber
+    -- ~ , parseFloat
+    -- ~ , parseComplex
+    -- ~ , parseIdentifier
 
-    , parsePrimitive
-    , ParseTree (..)
+    -- ~ , parsePrimitive
+    -- ~ , ParseTree (..)
+    -- ~ ) where
+
+module Parser.Primitive
+    ( module Parser.Primitive
     ) where
 
 import qualified Types as T
 import Parser.Parsing
 
 data ParseTree = Number Int
-               | Identifier String
                | Float Float
+               | Identifier String
                | Complex (T.Complex Float)
-               | Array [ParseTree]
-               | Matrix [ParseTree]
+
+               | Array [ParseTree]                  -- [Value]
+               | Matrix [ParseTree]                 -- [Array]
+               | Funcall (ParseTree, [ParseTree])   -- (String, [Values])
                -- ~ | Expr [ParseTree]
                -- ~ | Assignment ([String], ParseTree)
                -- ~ | Operator Char
@@ -44,29 +50,32 @@ float = do
 
 floating = token float
 
-parseFloat = Float <$> token floating
+parseFloat = Float <$> floating
 
 intAsFloat = do
-    n <- integer
+    n <- int
     return $ fromIntegral n
 
-comp = do
-    n <- (floating <|> intAsFloat)
-    char 'i'
-    return $ T.Complex (0,n)
+comp =
+    T.complex <$> ((float <|> intAsFloat) >>= (\a -> char 'i' >> return a))
+    <|> do
+        token $ string "-i"
+        return $ T.Complex (0,-1)
+    <|> do
+        char 'i'
+        return $ T.Complex (0,1)
 
 complex = token comp
 
-parseComplex = do
-    n <- (floating <|> intAsFloat)
-    char 'i'
-    return $ Complex $ T.Complex (0,n)
-    <|> do
-        char 'i'
-        return $ Complex $ T.Complex (0,1)
+parseComplex = Complex <$> complex
 
 parsePrimitive =
         parseComplex
     <|> parseIdentifier
     <|> parseFloat
     <|> parseNumber
+    -- ~ <|> do
+        -- ~ char '('
+        -- ~ x <- parsePrimitive
+        -- ~ char '('
+        -- ~ return x

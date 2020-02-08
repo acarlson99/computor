@@ -1,5 +1,9 @@
 TODO:
-    - lexer blueprint
-    - generate parse tree
+    - lexer:
+        - types:
+            - fix spacing. "12i12i12i" should
+                return [(Complex (0,12), "12i12i")]
+        - lexer blueprint
+        - generate parse tree
     - walk parse tree
     - make types and functions work
