@@ -3,42 +3,46 @@ LINE:
     | IDENTIFIER = EXPR EOL                 # variable definition
     | EXPR EOL                              # some other expression
 
+# IMPLEMENTED
+
 EXPR:
-    | IDENTIFIER\(EXPR*\)                   # function call
     | OPERATION                             # a + b     1 + 2
-    | VALUE                                 # 12.4      evaluates to 12.4
-    | \(EXPR\)
-    # add paren
-
-OPERATION:
-    | VALUE OPERATOR EXPR
-
-VALUE:
     | FUNCALL
+    | PRIMITIVE
+    | MATRIX
+    | ARRAY
+    | \(EXPR\)
+
+OPERAND:
+    | FUNCALL
+    | PRIMITIVE
     | ARRAY
     | MATRIX
-    | PRIMITIVE
+
+OPERATION:
+    | OPERAND OPERATOR EXPR
 
 FUNCALL:
     | IDENTIFIER\(\)
-    | IDENTIFIER\(IDENTIFIER\)
-    | IDENTIFIER\(IDENTIFIER(, IDENTIFIER)+\)
+    | IDENTIFIER\(EXPR\)
+    | IDENTIFIER\(EXPR(, EXPR)+\)
 
 ARRAY:
-    | \[PRIMITIVE|FUNCALL\]
-    | \[PRIMITIVE|FUNCALL(?:,PRIMITIVE|FUNCALL)*\]
+    | \[EXPR\]
+    | \[EXPR(?:, EXPR)*\]
 
 MATRIX:
     | \[ARRAY\]
     | \[ARRAY(?:;ARRAY)*\]
-
-# IMPLEMENTED
 
 PRIMITIVE:
     | IDENTIFIER
     | COMPLEX
     | FLOAT
     | INT
+    | \(PRIMITIVE\)
+
+# Primitives
 
 IDENTIFIER:
     | LETTER (?:DIGIT|SYMBOL|LETTER)+

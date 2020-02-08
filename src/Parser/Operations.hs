@@ -1,6 +1,5 @@
 module Parser.Operations
-    ( Operation (..)
-    , parseOperation
+    ( parseOperator
     ) where
 
 import Parsing
@@ -14,15 +13,15 @@ oper = string "+"
    <|> string "/"
    <|> string "^"
 
-operation = token oper
+operator = token oper
 
-strToOperation "+"  = Add
-strToOperation "-"  = Sub
-strToOperation "*"  = Mult
-strToOperation "/"  = Div
-strToOperation "^"  = Exp
-strToOperation "**" = MatrixMult
-strToOperation s    = Other s
+strToOperator "+"  = Add
+strToOperator "-"  = Sub
+strToOperator "*"  = Mult
+strToOperator "/"  = Div
+strToOperator "^"  = Exp
+strToOperator "**" = MatrixMult
+strToOperator s    = Other s
 
-parseOperation :: Parser ParseTree
-parseOperation = Oper <$> strToOperation <$> operation
+parseOperator :: Parser Operator
+parseOperator = strToOperator <$> operator

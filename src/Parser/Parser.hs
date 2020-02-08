@@ -1,7 +1,11 @@
+-- ~ module Parser.Parser
+    -- ~ ( readExpr
+    -- ~ , parseArray
+    -- ~ , parseMatrix
+    -- ~ ) where
+
 module Parser.Parser
-    ( readExpr
-    , parseArray
-    , parseMatrix
+    ( module Parser.Parser
     ) where
 
 import Control.Monad
@@ -24,16 +28,8 @@ Operator precedence
 =       -- assignment
 -}
 
--- ~ parseExpr :: Parser [ParseTree]
--- ~ parseExpr = do
-    -- ~ x <- parsePrimitive
-    -- ~ xs <- parseExpr
-    -- ~ return $ x:xs
-    -- ~ <|> do
-    -- ~ xs <- parsePrimitive
-    -- ~ return xs
-
-parseExpr = parseFuncall
+parseExpr = parseOperation
+    <|> parseFuncall
     <|> parsePrimitive
     <|> parseMatrix
     <|> parseArray
@@ -42,7 +38,24 @@ parseExpr = parseFuncall
         x <- parseExpr
         char ')'
         return x
--- TODO: add more expressions (paren, operation, funcall)
+
+operand = parseFuncall
+        <|> parsePrimitive
+        <|> parseMatrix
+        <|> parseArray
+        -- ~ <|> do
+            -- ~ char '('
+            -- ~ x <- parseExpr
+            -- ~ char ')'
+            -- ~ return x
+
+operation = do
+    lhs <- operand
+    op <- parseOperator
+    rhs <- parseExpr
+    return (op, lhs, rhs)
+
+parseOperation = Operation <$> operation
 
 funcall =  let f = parseIdentifier <* char '('
     in do

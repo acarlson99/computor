@@ -4,7 +4,7 @@ module Parser.Types
 
 import qualified Types as T
 
-data Operation = Add
+data Operator = Add
                | Sub
                | Mult
                | Div
@@ -18,7 +18,7 @@ data ParseTree = Number Int
                | Float Float
                | Identifier String
                | Complex (T.Complex Float)
-               | Oper Operation
+               | Operation (Operator, ParseTree, ParseTree) -- 1 + 2 === + 1 2
 
                | Array [ParseTree]                  -- [Value]
                | Matrix [ParseTree]                 -- [Array]
