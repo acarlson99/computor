@@ -49,8 +49,8 @@ intAsFloat = fromIntegral <$> int
         -- ~ char 'i'
         -- ~ return $ T.Complex (0,1)
 comp = T.complex <$> (float <|> intAsFloat) <* char 'i'
-    <|> (string "-i" *> return $ T.Complex (0,-1))
-    <|> (   char 'i' *> return $ T.Complex (0, 1))
+    <|> (string "-i" *> (return $ T.Complex (0,-1)))
+    <|> (   char 'i' *> (return $ T.Complex (0, 1)))
 
 complex = token comp
 
