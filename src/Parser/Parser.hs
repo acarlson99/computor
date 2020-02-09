@@ -40,11 +40,9 @@ parseExpr = token $ parseOperation
     <|> parsePrimitive
     <|> parseMatrix
     <|> parseArray
-    <|> do
-        char '('
-        x <- parseExpr
-        char ')'
-        return x
+    <|> parseParenExpr
+
+parseParenExpr = char '(' *> parseExpr <* char ')'
 
 assignment = do
     name <- parseIdentifier
@@ -66,11 +64,7 @@ operand = parseFuncall
         <|> parsePrimitive
         <|> parseMatrix
         <|> parseArray
-        <|> do      -- handle paren for cases like (1+2)^3
-            char '('
-            x <- parseExpr
-            char ')'
-            return x
+        <|> parseParenExpr      -- handle paren for cases like (1+2)^3
 
 operation = do
         lhs <- operand

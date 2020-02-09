@@ -28,22 +28,17 @@ parseFloat' = do
     char '.'
     rhs <- many digit
     if rhs == ""
-    then return $ lhs
+    then return lhs
     else return $ lhs + read ("0." ++ rhs)
 
-float = do
-    char '-'
-    num <- parseFloat'
-    return $ negate num
+float = (char '-' >> negate <$> parseFloat')
     <|> parseFloat'
 
 floating = token float
 
 parseFloat = Float <$> floating
 
-intAsFloat = do
-    n <- int
-    return $ fromIntegral n
+intAsFloat = fromIntegral <$> int
 
 comp = T.complex <$> (float <|> intAsFloat) <* char 'i'
     <|> do
