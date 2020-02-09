@@ -1,7 +1,7 @@
 LINE:
-    | IDENTIFIER\(IDENTIFIER*\) = EXPR EOL  # function definition
-    | IDENTIFIER = EXPR EOL                 # variable definition
-    | EXPR EOL                              # some other expression
+    | FUNCALL = EXPR                        # function definition
+    | IDENTIFIER = EXPR                     # variable definition
+    | EXPR                                  # some other expression
 
 # IMPLEMENTED
 

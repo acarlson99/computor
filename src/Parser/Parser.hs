@@ -43,17 +43,21 @@ operand = parseFuncall
         <|> parsePrimitive
         <|> parseMatrix
         <|> parseArray
-        -- ~ <|> do
-            -- ~ char '('
-            -- ~ x <- parseExpr
-            -- ~ char ')'
-            -- ~ return x
+        <|> do      -- handle paren for cases like (1+2)^3
+            char '('
+            x <- parseExpr
+            char ')'
+            return x
 
 operation = do
-    lhs <- operand
-    op <- parseOperator
-    rhs <- parseExpr
-    return (op, lhs, rhs)
+        lhs <- operand
+        op <- parseOperator
+        rhs <- parseExpr
+        return (op, lhs, rhs)
+    <|> do          -- 4x = 4*x
+        lhs <- operand
+        rhs <- parseIdentifier
+        return (Mult, lhs, rhs)
 
 parseOperation = Operation <$> operation
 
