@@ -55,7 +55,7 @@ comp = T.complex <$> (float <|> intAsFloat) <* char 'i'
 
 complex = token comp
 
-parseComplex = Complex <$> complex
+parseComplex = Complex <$> token complex
 
 parsePrimitive =
         parseComplex

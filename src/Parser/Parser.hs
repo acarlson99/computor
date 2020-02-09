@@ -28,7 +28,14 @@ Operator precedence
 =       -- assignment
 -}
 
-parseExpr = parseOperation
+readExpr :: String -> String
+readExpr = show . parse parseLine
+
+parseLine = parseAssignment
+    <|> parseDefun
+    <|> parseExpr
+
+parseExpr = token $ parseOperation
     <|> parseFuncall
     <|> parsePrimitive
     <|> parseMatrix
@@ -38,6 +45,22 @@ parseExpr = parseOperation
         x <- parseExpr
         char ')'
         return x
+
+assignment = do
+    name <- parseIdentifier
+    char '='
+    rhs <- parseExpr
+    return (name, rhs)
+
+parseAssignment = Assignment <$> token assignment
+
+defun = do
+    func <- parseFuncall
+    char '='
+    rhs <- parseExpr
+    return (func, rhs)
+
+parseDefun = Defun <$> token defun
 
 operand = parseFuncall
         <|> parsePrimitive
@@ -59,7 +82,7 @@ operation = do
         rhs <- parseIdentifier
         return (Mult, lhs, rhs)
 
-parseOperation = Operation <$> operation
+parseOperation = Operation <$> token operation
 
 funcall =  let f = parseIdentifier <* char '('
     in do
@@ -72,7 +95,7 @@ funcall =  let f = parseIdentifier <* char '('
         char ')'
         return (id, xs)
 
-parseFuncall = Funcall <$> funcall
+parseFuncall = Funcall <$> token funcall
 
 parseArrOnDelim delim fn = do
         char '['
@@ -93,8 +116,3 @@ parseArray = Array <$> array
 matrix = parseArrOnDelim ';' parseArray
 
 parseMatrix = Matrix <$> matrix
-
--- ~ parseExpr = parseNumber
-
-readExpr :: String -> String
-readExpr = show . parse parseExpr

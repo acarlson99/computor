@@ -23,6 +23,9 @@ data ParseTree = Number Int
                | Array [ParseTree]                  -- [Value]
                | Matrix [ParseTree]                 -- [Array]
                | Funcall (ParseTree, [ParseTree])   -- (String, [Values])
+
+               | Assignment (ParseTree, ParseTree)
+               | Defun (ParseTree, ParseTree) -- (funcall, expr)
                -- ~ | Expr [ParseTree]
                -- ~ | Assignment ([String], ParseTree)
                -- ~ | Operator Char

@@ -6,16 +6,18 @@ TODO:
         - implement operatior precidence (PEMDAS)
         - lexer blueprint
         - generate parse tree
-        - assignment
+        - fix weird spacing
     - walk parse tree
     - make types and functions work
 
 DONE:
     - lexer:
-        - funcall
-        - complex
-        - int
-        - matrix
-        - array
-        - operations
-        - paren
+        - implement:
+            - funcall
+            - complex
+            - int
+            - matrix
+            - array
+            - operations
+            - paren
+            - assignment

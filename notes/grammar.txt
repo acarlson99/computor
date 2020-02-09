@@ -3,8 +3,6 @@ LINE:
     | IDENTIFIER = EXPR                     # variable definition
     | EXPR                                  # some other expression
 
-# IMPLEMENTED
-
 EXPR:
     | OPERATION                             # a + b     1 + 2
     | FUNCALL

@@ -24,4 +24,4 @@ strToOperator "**" = MatrixMult
 strToOperator s    = Other s
 
 parseOperator :: Parser Operator
-parseOperator = strToOperator <$> operator
+parseOperator = strToOperator <$> token operator
