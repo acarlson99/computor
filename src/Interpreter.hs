@@ -2,17 +2,15 @@ module Interpreter
     ( interpret
     ) where
 
-import System.IO
+import System.Console.Readline
 
 import Parser.Parser
 
 interpret :: Int -> [String] -> IO ()
 interpret linenum _ = do
-    putStr $ show linenum ++ " > "
-    hFlush stdout
-    ineof <- isEOF
-    if ineof
-    then return ()
-    else do ln <- getLine
-            putStrLn $ readExpr ln
-            interpret (linenum + 1) []
+    maybeLine <- readline $ show linenum ++ " > "
+    case maybeLine of
+        Nothing -> return ()
+        Just ln -> do addHistory ln
+                      putStrLn $ readExpr ln
+                      interpret (linenum + 1) []
