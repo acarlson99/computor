@@ -25,6 +25,7 @@ data ParseTree = Number Int
                | Float Float
                | Identifier String
                | Complex (T.Complex Float)
+
                | Operation (Operator, ParseTree, ParseTree) -- 1 + 2 === + 1 2
 
                | Array [ParseTree]                  -- [Value]

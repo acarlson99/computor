@@ -1,6 +1,7 @@
 TODO:
     - lexer:
         - types:
+            - IMPORTANT: fix Parse.Types, add sub-types (num contains number,float,etc.)
             - fix spacing. "12i12i12i" should
                 return [(Complex (0,12), "12i12i")]
         - implement operatior precidence (PEMDAS)
