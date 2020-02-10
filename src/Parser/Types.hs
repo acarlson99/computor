@@ -5,6 +5,11 @@ module Parser.Types
 import qualified Types as T
 import Util
 
+data Cmd = Quit
+         | EvalPoly String
+         | Help
+         deriving (Show)
+
 data Operator = Add
                | Sub
                | Mult
@@ -26,6 +31,8 @@ data ParseTree = Number Int
 
                | Assignment (ParseTree, ParseTree)
                | Defun (ParseTree, ParseTree) -- (funcall, expr)
+
+               | Command Cmd
                -- ~ | Expr [ParseTree]
                -- ~ | Assignment ([String], ParseTree)
                -- ~ | Operator Char
@@ -57,3 +64,5 @@ instance Show ParseTree where
 
     show (Assignment (f,xs)) = show f ++ " = " ++ show xs
     show (Defun (f,xs)) = show f ++ " = " ++ show xs
+
+    show (Command cmd) = show cmd

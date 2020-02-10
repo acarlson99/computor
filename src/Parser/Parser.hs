@@ -9,6 +9,7 @@ module Parser.Parser
     ) where
 
 import Control.Monad
+import Data.Functor
 
 import Parsing
 
@@ -31,9 +32,21 @@ Operator precedence
 readExpr :: String -> String
 readExpr = show . parse parseLine
 
-parseLine = parseAssignment
+parseLine = parseCmd
+    <|> parseAssignment
     <|> parseDefun
     <|> parseExpr
+
+parseCmd = token $ char '@' *> (parseCmdQuit <|> parseCmdHelp <|> parseCmdPoly)
+
+parseCmdQuit = string "quit" $> Command Quit
+
+parseCmdHelp = string "help" $> Command Help
+
+poly :: Parser String
+poly = many $ sat $ const True
+
+parseCmdPoly = string "poly" *> (Command . EvalPoly <$> poly)
 
 parseExpr = token $ parseOperation
     <|> parseFuncall
