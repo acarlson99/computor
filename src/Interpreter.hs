@@ -17,10 +17,10 @@ emptyState = C []
 
 walkParseTree :: CalcState -> [(ParseTree,String)] -> (CalcState, IO ())
 -- commands
-walkParseTree st [((Command Help),[])] = (st, putStrLn "HELP MSG")
-walkParseTree st [((Command (EvalPoly pn)),[])] = (st, P.printRes $ P.solve pn)
-walkParseTree st [((Command Quit),[])] = (st, return ())
-walkParseTree st [((Command Reset),[])] = (emptyState, return ())
+walkParseTree st [(Command Help,[])] = (st, putStrLn "HELP MSG")
+walkParseTree st [(Command (EvalPoly pn),[])] = (st, P.printRes $ P.solve pn)
+walkParseTree st [(Command Quit,[])] = (st, return ())
+walkParseTree st [(Command Reset,[])] = (emptyState, return ())
 -- catch-all
 walkParseTree st [(expr,[])] = (st, putStrLn $ "UNIMPLEMENTED: " ++ show expr)
 -- error cases
