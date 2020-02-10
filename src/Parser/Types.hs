@@ -8,7 +8,7 @@ import Util
 data Cmd = Quit
          | EvalPoly String
          | Help
-         deriving (Show)
+         deriving (Show,Eq)
 
 data Operator = Add
                | Sub
@@ -18,6 +18,7 @@ data Operator = Add
                | Mod
                | MatrixMult
                | Other String
+               deriving (Eq)
 
 data ParseTree = Number Int
                | Float Float
@@ -37,7 +38,7 @@ data ParseTree = Number Int
                -- ~ | Assignment ([String], ParseTree)
                -- ~ | Operator Char
                -- ~ | Operation (Char, [ParseTree])
-               -- ~ deriving (Show)
+               deriving (Eq)
 
 instance Show Operator where
     show Add        = "+"

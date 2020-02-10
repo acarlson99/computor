@@ -12,6 +12,8 @@ module Parser.Primitives
     ( module Parser.Primitives
     ) where
 
+import Data.Functor
+
 import Parsing
 
 import qualified Types as T
@@ -49,8 +51,8 @@ intAsFloat = fromIntegral <$> int
         -- ~ char 'i'
         -- ~ return $ T.Complex (0,1)
 comp = T.complex <$> (float <|> intAsFloat) <* char 'i'
-    <|> (string "-i" *> (return $ T.Complex (0,-1)))
-    <|> (   char 'i' *> (return $ T.Complex (0, 1)))
+    <|> (string "-i" $> T.Complex (0,-1))
+    <|> (   char 'i' $> T.Complex (0, 1))
 
 complex = token comp
 
