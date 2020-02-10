@@ -8,6 +8,7 @@ import Util
 data Cmd = Quit
          | EvalPoly String
          | Help
+         | Reset
          deriving (Show,Eq)
 
 data Operator = Add
@@ -34,6 +35,8 @@ data ParseTree = Number Int
                | Defun (ParseTree, ParseTree) -- (funcall, expr)
 
                | Command Cmd
+
+               | Error String
                -- ~ | Expr [ParseTree]
                -- ~ | Assignment ([String], ParseTree)
                -- ~ | Operator Char
@@ -67,3 +70,5 @@ instance Show ParseTree where
     show (Defun (f,xs)) = show f ++ " = " ++ show xs
 
     show (Command cmd) = show cmd
+
+    show (Error s) = "UNKNOWN VALUES: " ++ s

@@ -14,7 +14,7 @@ printUsage = do
 
 runComp ("help":xs) = printUsage
 runComp ("poly":x:xs) = mapM_ (printRes . solve) $ x:xs
-runComp ("repl":xs) = interpret 0 xs
+runComp ("repl":xs) = interpret 0 emptyState
 runComp _ = printUsage
 
 main :: IO ()

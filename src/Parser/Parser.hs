@@ -29,24 +29,31 @@ Operator precedence
 =       -- assignment
 -}
 
-readExpr :: String -> String
-readExpr = show . parse parseLine
+readExpr :: String -> [(ParseTree,String)]
+readExpr = parse parseLine
 
 parseLine = parseCmd
     <|> parseAssignment
     <|> parseDefun
     <|> parseExpr
+    <|> parseError
 
-parseCmd = token $ char '@' *> (parseCmdQuit <|> parseCmdHelp <|> parseCmdPoly)
+allTokens = token $ sat $ const True
 
-parseCmdQuit = string "quit" $> Command Quit
+parseError = Error <$> some allTokens
+
+parseCmd = token $ char '@' *> (parseCmdQuit
+                            <|> parseCmdHelp
+                            <|> parseCmdPoly
+                            <|> parseCmdReset)
+
+parseCmdQuit = (string "quit" <|> string "exit") $> Command Quit
 
 parseCmdHelp = string "help" $> Command Help
 
-poly :: Parser String
-poly = many $ sat $ const True
+parseCmdPoly = string "poly" *> (Command . EvalPoly <$> many allTokens)
 
-parseCmdPoly = string "poly" *> (Command . EvalPoly <$> poly)
+parseCmdReset = string "reset" $> Command Reset
 
 parseExpr = token $ parseOperation
     <|> parseFuncall
@@ -85,7 +92,7 @@ operation = do
         rhs <- parseExpr
         return (op, lhs, rhs)
     <|> do          -- 4x = 4*x
-        lhs <- operand
+        lhs <- parseFloat <|> parseNumber
         rhs <- parseIdentifier
         return (Mult, lhs, rhs)
 
