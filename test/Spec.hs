@@ -2,9 +2,9 @@ import Control.Monad
 
 import Parsing
 
-import Parser.Parser
-import Parser.Primitives
-import Parser.Types
+import Parse
+import Parse.Primitives
+import Parse.Types
 
 import qualified Types as T
 
@@ -45,7 +45,7 @@ parseIdentifierTest =
     let inps  = [      "abc",      "a12",  "+123" ]
         outps = [ Just "abc", Just "a12", Nothing ]
         gentest (i,Nothing) = []
-        gentest (i,_)       = [(Identifier i, "")]
+        gentest (i,_)       = [(Identifier $ Ident i, "")]
     in test inps outps gentest parseIdentifier
 
 parseComplexTest =

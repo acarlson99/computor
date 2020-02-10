@@ -1,11 +1,11 @@
--- ~ module Parse.Parse
+-- ~ module Parse
     -- ~ ( readExpr
     -- ~ , parseArray
     -- ~ , parseMatrix
     -- ~ ) where
 
-module Parse.Parse
-    ( module Parse.Parse
+module Parse
+    ( module Parse
     ) where
 
 import Control.Monad
@@ -32,10 +32,11 @@ Operator precedence
 readExpr :: String -> [(ParseTree,String)]
 readExpr = parse parseLine
 
+parseLine :: Parser ParseTree
 parseLine = parseCmd
     <|> parseAssignment
     <|> parseDefun
-    <|> parseExpr
+    <|> (Expr' <$> parseExpr)
     <|> parseError
 
 allTokens = token $ sat $ const True
@@ -55,9 +56,10 @@ parseCmdPoly = string "poly" *> (Command . EvalPoly <$> many allTokens)
 
 parseCmdReset = string "reset" $> Command Reset
 
+-- ~ parseExpr :: Parser Expr
 parseExpr = token $ parseOperation
     <|> parseFuncall
-    <|> parsePrimitive
+    <|> (Primitive' <$> parsePrimitive)
     <|> parseMatrix
     <|> parseArray
     <|> parseParenExpr
@@ -65,7 +67,7 @@ parseExpr = token $ parseOperation
 parseParenExpr = char '(' *> parseExpr <* char ')'
 
 assignment = do
-    name <- parseIdentifier
+    name <- (Ident <$> identifier)
     char '='
     rhs <- parseExpr
     return (name, rhs)
@@ -73,7 +75,7 @@ assignment = do
 parseAssignment = Assignment <$> token assignment
 
 defun = do
-    func <- parseFuncall
+    func <- parseFcall
     char '='
     rhs <- parseExpr
     return (func, rhs)
@@ -81,7 +83,7 @@ defun = do
 parseDefun = Defun <$> token defun
 
 operand = parseFuncall
-        <|> parsePrimitive
+        <|> (Primitive' <$> parsePrimitive)
         <|> parseMatrix
         <|> parseArray
         <|> parseParenExpr      -- handle paren for cases like (1+2)^3
@@ -92,13 +94,14 @@ operation = do
         rhs <- parseExpr
         return (op, lhs, rhs)
     <|> do          -- 4x = 4*x
-        lhs <- parseFloat <|> parseNumber
-        rhs <- parseIdentifier
+        -- ~ lhs <- parseFloat <|> parseNumber
+        lhs <- operand
+        rhs <- (Primitive' <$> parseIdentifier)
         return (Mult, lhs, rhs)
 
 parseOperation = Operation <$> token operation
 
-funcall =  let f = parseIdentifier <* char '('
+funcall =  let f = parseIdent <* char '('
     in do
         id <- f
         char ')'
@@ -109,7 +112,9 @@ funcall =  let f = parseIdentifier <* char '('
         char ')'
         return (id, xs)
 
-parseFuncall = Funcall <$> token funcall
+parseFcall = Fcall <$> token funcall
+
+parseFuncall = Funcall <$> parseFcall
 
 parseArrOnDelim delim fn = do
         char '['

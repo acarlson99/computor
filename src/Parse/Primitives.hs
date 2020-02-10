@@ -22,7 +22,12 @@ import Parse.Types
 
 parseNumber = Number <$> integer
 
-parseIdentifier = Identifier <$> identifier
+parseIdent = Ident <$> identifier
+
+parseIdentifier = Identifier <$> parseIdent
+
+-- ~ parseIdentifier' :: Parser Expr
+-- ~ parseIdentifier' = Primitive <$> (Identifier <$> parseIdent)
 
 parseFloat' :: Parser Float
 parseFloat' = do
@@ -58,6 +63,7 @@ complex = token comp
 
 parseComplex = Complex <$> token complex
 
+parsePrimitive :: Parser Primitive
 parsePrimitive =
         parseComplex
     <|> parseIdentifier
