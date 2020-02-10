@@ -1,11 +1,11 @@
--- ~ module Parser.Parser
+-- ~ module Parse.Parse
     -- ~ ( readExpr
     -- ~ , parseArray
     -- ~ , parseMatrix
     -- ~ ) where
 
-module Parser.Parser
-    ( module Parser.Parser
+module Parse.Parse
+    ( module Parse.Parse
     ) where
 
 import Control.Monad
@@ -13,9 +13,9 @@ import Data.Functor
 
 import Parsing
 
-import Parser.Primitives
-import Parser.Operations
-import Parser.Types
+import Parse.Primitives
+import Parse.Operations
+import Parse.Types
 
 {-
 Operator precedence

@@ -1,10 +1,10 @@
-module Parser.Operations
+module Parse.Operations
     ( parseOperator
     ) where
 
 import Parsing
 
-import Parser.Types
+import Parse.Types
 
 oper = string "+"
    <|> string "-"

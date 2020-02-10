@@ -7,8 +7,8 @@ import System.Console.Readline
 
 import qualified Poly.Solve as P
 
-import Parser.Parser
-import Parser.Types
+import Parse.Parse
+import Parse.Types
 
 newtype CalcState = C [String]
 

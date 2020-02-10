@@ -1,5 +1,5 @@
-module Parser.Types
-    ( module Parser.Types
+module Parse.Types
+    ( module Parse.Types
     ) where
 
 import qualified Types as T

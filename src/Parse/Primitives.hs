@@ -1,4 +1,4 @@
--- ~ module Parser.Primitives
+-- ~ module Parse.Primitives
     -- ~ ( parseNumber
     -- ~ , parseFloat
     -- ~ , parseComplex
@@ -8,8 +8,8 @@
     -- ~ , ParseTree (..)
     -- ~ ) where
 
-module Parser.Primitives
-    ( module Parser.Primitives
+module Parse.Primitives
+    ( module Parse.Primitives
     ) where
 
 import Data.Functor
@@ -17,8 +17,8 @@ import Data.Functor
 import Parsing
 
 import qualified Types as T
-import Parser.Operations
-import Parser.Types
+import Parse.Operations
+import Parse.Types
 
 parseNumber = Number <$> integer
 
