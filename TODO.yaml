@@ -1,5 +1,6 @@
 TODO:
     - lexer:
+        - make defun not use parseFcall.  `f(1,2,3,4) = 7` is invalid
         - fix spacing. "12i12i12i" should
             return [(Complex (0,12), "12i12i")]
         - implement operator precidence (PEMDAS)

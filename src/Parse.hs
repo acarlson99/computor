@@ -6,6 +6,7 @@
 
 module Parse
     ( module Parse
+    , module Parse.Types
     ) where
 
 import Control.Monad

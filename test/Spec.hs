@@ -4,7 +4,6 @@ import Parsing
 
 import Parse
 import Parse.Primitives
-import Parse.Types
 
 import qualified Types as T
 

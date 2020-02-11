@@ -4,6 +4,7 @@ import System.Environment
 
 import Poly.Solve
 import Interpreter
+import Eval
 
 printUsage = do
     putStrLn "usage: stack run (help|poly|repl) [args]"
@@ -14,7 +15,7 @@ printUsage = do
 
 runComp ("help":xs) = printUsage
 runComp ("poly":x:xs) = mapM_ (printRes . solve) $ x:xs
-runComp ("repl":xs) = interpret 0 emptyState
+runComp ("repl":xs) = interpret emptyState 0
 runComp _ = printUsage
 
 main :: IO ()
