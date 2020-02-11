@@ -11,9 +11,9 @@ data Cmd = Quit
          | Reset
          deriving (Show,Eq)
 
-newtype Ident = Ident String deriving (Eq,Show)
+newtype Ident = Ident String deriving (Eq)
 
-newtype Fcall = Fcall (Ident, [Expr]) deriving (Eq,Show)
+newtype Fcall = Fcall (Ident, [Expr]) deriving (Eq)
 
 data Operator = Add
                | Sub
@@ -23,21 +23,22 @@ data Operator = Add
                | Mod
                | MatrixMult
                | Other String
-               deriving (Eq,Show)
+               deriving (Eq)
 
 data Primitive = Number Int
-           | Float Float
-           | Identifier Ident
-           | Complex (T.Complex Float)
-           deriving (Eq,Show)
+               | Float Float
+               | Identifier Ident
+               | Complex (T.Complex Float)
+               deriving (Eq)
 
 data Expr = Primitive' Primitive
+
           | Array [Expr]
           | Matrix [Expr]
 
           | Funcall Fcall
           | Operation (Operator, Expr, Expr)   -- 1 + 2 === + 1 2
-          deriving (Eq,Show)
+          deriving (Eq)
 
 data ParseTree = Expr' Expr
                | Assignment (Ident, Expr)
@@ -46,34 +47,42 @@ data ParseTree = Expr' Expr
                | Command Cmd
 
                | Error String
-               deriving (Eq,Show)
+               deriving (Eq)
 
--- ~ instance Show Operator where
-    -- ~ show Add        = "+"
-    -- ~ show Sub        = "-"
-    -- ~ show Mult       = "*"
-    -- ~ show Div        = "/"
-    -- ~ show Exp        = "^"
-    -- ~ show MatrixMult = "**"
-    -- ~ show (Other s)  = s
+instance Show Operator where
+    show Add        = "+"
+    show Sub        = "-"
+    show Mult       = "*"
+    show Div        = "/"
+    show Exp        = "^"
+    show MatrixMult = "**"
+    show (Other s)  = s
 
--- ~ instance Show ParseTree where
-    -- ~ show (Number n) = show n
-    -- ~ show (Float n) = show n
-    -- ~ show (Identifier s) = s
-    -- ~ show (Complex c) = show c
-    -- ~ show (Operation (op,lhs,rhs)) = '(' : show lhs ++ ' ' : show op ++ ' ' : show rhs ++ ")"
+instance Show Ident where
+    show (Ident idn) = idn
 
-    -- ~ show (Array (x:xs)) = '[' : show x  ++ showSepList ',' xs ++ "]"
-    -- ~ show (Array []) = "[ ]"
-    -- ~ show (Matrix (x:xs)) = '[' : show x ++ showSepList ';' xs ++ "]"
-    -- ~ show (Matrix []) = "[ ]"
-    -- ~ show (Funcall (f,x:xs)) = show f ++ '(' : show x ++ showSepList ',' xs ++ ")"
-    -- ~ show (Funcall (f,[])) = show f ++ "( )"
+instance Show Fcall where
+    show (Fcall (idn,x:xs)) = show idn ++ "(" ++ show x ++ showSepList ',' xs ++ ")"
+    show (Fcall (idn,[])) = show idn ++ "()"
 
-    -- ~ show (Assignment (f,xs)) = show f ++ " = " ++ show xs
-    -- ~ show (Defun (f,xs)) = show f ++ " = " ++ show xs
+instance Show Primitive where
+    show (Number n) = show n
+    show (Float f) = show f
+    show (Identifier idn) = show idn
+    show (Complex cplx) = show cplx
 
-    -- ~ show (Command cmd) = show cmd
+instance Show Expr where
+    show (Primitive' prim)        = show prim
+    show (Array (x:xs))           = '[' : show x  ++ showSepList ',' xs ++ "]"
+    show (Array [])               = "[]"
+    show (Matrix (x:xs))          = '[' : show x ++ showSepList ';' xs ++ "]"
+    show (Matrix [])              = "[]"
+    show (Funcall fc)             = show fc
+    show (Operation (op,lhs,rhs)) = '(' : show lhs ++ ' ' : show op ++ ' ' : show rhs ++ ")"
 
-    -- ~ show (Error s) = "UNKNOWN VALUES: " ++ s
+instance Show ParseTree where
+    show (Expr' xs) = show xs
+    show (Assignment (idnt,expr)) = show idnt ++ " = " ++ show expr
+    show (Defun (f,xs)) = show f ++ " = " ++ show xs
+    show (Command cmd) = show cmd
+    show (Error err) = "UNKNOWN VALUES: " ++ err
