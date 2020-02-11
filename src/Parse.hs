@@ -68,7 +68,7 @@ parseExpr = token $ parseOperation
 parseParenExpr = char '(' *> parseExpr <* char ')'
 
 assignment = do
-    name <- (Ident <$> identifier)
+    name <- Ident <$> identifier
     char '='
     rhs <- parseExpr
     return (name, rhs)
@@ -78,19 +78,19 @@ parseAssignment = Assignment <$> token assignment
 defun = do
         func <- parseIdent
         token $ char '('
-        token $ char ')'
-        char '='
-        rhs <- parseExpr
+        rhs <- parseRhs
         return (func, [], rhs)
     <|> do
         func <- parseIdent
         token $ char '('
         x <- parseIdent
         xs <- many (char ',' *> parseIdent)
-        token $ char ')'
-        char '='
-        rhs <- parseExpr
+        rhs <- parseRhs
         return (func, x:xs, rhs)
+    where parseRhs = do
+            token $ char ')'
+            token $ char '='
+            parseExpr
 
 parseDefun = Defun <$> token defun
 
@@ -108,7 +108,7 @@ operation = do
         return (op, lhs, rhs)
     <|> do          -- 4x = 4*x
         lhs <- operand
-        rhs <- (Primitive' <$> parseIdentifier)
+        rhs <- Primitive' <$> parseIdentifier
         return (Mult, lhs, rhs)
 
 parseOperation = Operation <$> token operation
