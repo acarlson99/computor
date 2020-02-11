@@ -18,7 +18,7 @@ emptyState = C []
 parseInput :: [(ParseTree,String)] -> (Int -> IO ())
 parseInput [(Command Quit,"")] = \_ -> return ()
 parseInput inp =
-    (\ln -> do putStrLn $ show inp
+    (\ln -> do print inp
                interpret ln emptyState)
 
 interpret :: Int -> CalcState -> IO ()

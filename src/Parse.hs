@@ -88,13 +88,13 @@ operand = parseFuncall
         <|> parseArray
         <|> parseParenExpr      -- handle paren for cases like (1+2)^3
 
+-- TODO: implement operator precidence
 operation = do
         lhs <- operand
         op <- parseOperator
         rhs <- parseExpr
         return (op, lhs, rhs)
     <|> do          -- 4x = 4*x
-        -- ~ lhs <- parseFloat <|> parseNumber
         lhs <- operand
         rhs <- (Primitive' <$> parseIdentifier)
         return (Mult, lhs, rhs)

@@ -1,18 +1,17 @@
 TODO:
     - lexer:
-        - types:
-            - IMPORTANT: fix Parse.Types, add sub-types (num contains number,float,etc.)
-            - fix spacing. "12i12i12i" should
-                return [(Complex (0,12), "12i12i")]
-        - implement operatior precidence (PEMDAS)
-        - lexer blueprint
-        - generate parse tree
+        - fix spacing. "12i12i12i" should
+            return [(Complex (0,12), "12i12i")]
+        - implement operator precidence (PEMDAS)
         - fix weird spacing
+    - state:
+        - create container for state
     - walk parse tree
     - make types and functions work
 
 DONE:
     - lexer:
+        - fix Parse.Types, add sub-types (num contains number,float,etc.)
         - implement:
             - funcall
             - complex
@@ -22,3 +21,5 @@ DONE:
             - operations
             - paren
             - assignment
+        - lexer blueprint
+        - generate parse tree
