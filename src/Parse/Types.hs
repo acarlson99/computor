@@ -42,7 +42,7 @@ data Expr = Primitive' Primitive
 
 data ParseTree = Expr' Expr
                | Assignment (Ident, Expr)
-               | Defun (Fcall, Expr) -- (funcall, expr)
+               | Defun (Ident, [Ident], Expr) -- (funcall, expr)
 
                | Command Cmd
 
@@ -62,7 +62,7 @@ instance Show Ident where
     show (Ident idn) = idn
 
 instance Show Fcall where
-    show (Fcall (idn,x:xs)) = show idn ++ "(" ++ show x ++ showSepList ',' xs ++ ")"
+    show (Fcall (idn,x:xs)) = show idn ++ "(" ++ show x ++ showSepList ", " xs ++ ")"
     show (Fcall (idn,[])) = show idn ++ "()"
 
 instance Show Primitive where
@@ -73,9 +73,9 @@ instance Show Primitive where
 
 instance Show Expr where
     show (Primitive' prim)        = show prim
-    show (Array (x:xs))           = '[' : show x  ++ showSepList ',' xs ++ "]"
+    show (Array (x:xs))           = '[' : show x  ++ showSepList ", " xs ++ "]"
     show (Array [])               = "[]"
-    show (Matrix (x:xs))          = '[' : show x ++ showSepList ';' xs ++ "]"
+    show (Matrix (x:xs))          = '[' : show x ++ showSepList "; " xs ++ "]"
     show (Matrix [])              = "[]"
     show (Funcall fc)             = show fc
     show (Operation (op,lhs,rhs)) = '(' : show lhs ++ ' ' : show op ++ ' ' : show rhs ++ ")"
@@ -83,6 +83,8 @@ instance Show Expr where
 instance Show ParseTree where
     show (Expr' xs) = show xs
     show (Assignment (idnt,expr)) = show idnt ++ " = " ++ show expr
-    show (Defun (f,xs)) = show f ++ " = " ++ show xs
+    show (Defun (f,[],rhs)) = show f ++ "( ) = " ++ show rhs
+    show (Defun (f,x:xs,rhs)) = show f ++ "( " ++ show x ++ showSepList " , " xs ++ " ) = " ++ show rhs
+    -- ~ show (Defun (f,xs,rhs)) = show (Fcall (f, map (Primitive' . Identifier) xs)) ++ show rhs
     show (Command cmd) = show cmd
     show (Error err) = "UNKNOWN VALUES: " ++ err

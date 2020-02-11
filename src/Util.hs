@@ -16,6 +16,6 @@ sortBuckets f (x:xs) =
         big = sortBuckets f [y | y <- xs, f y > f x]
     in small ++ (x:[y | y <- xs, f y == f x]) : big
 
-showSepList :: Show a => Char -> [a] -> String
-showSepList c (x:xs) = c : ' ' : show x ++ showSepList c xs
+showSepList :: Show a => String -> [a] -> String
+showSepList sep (x:xs) = sep ++ show x ++ showSepList sep xs
 showSepList _ [] = ""

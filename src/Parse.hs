@@ -76,10 +76,21 @@ assignment = do
 parseAssignment = Assignment <$> token assignment
 
 defun = do
-    func <- parseFcall
-    char '='
-    rhs <- parseExpr
-    return (func, rhs)
+        func <- parseIdent
+        token $ char '('
+        token $ char ')'
+        char '='
+        rhs <- parseExpr
+        return (func, [], rhs)
+    <|> do
+        func <- parseIdent
+        token $ char '('
+        x <- parseIdent
+        xs <- many (char ',' *> parseIdent)
+        token $ char ')'
+        char '='
+        rhs <- parseExpr
+        return (func, x:xs, rhs)
 
 parseDefun = Defun <$> token defun
 
