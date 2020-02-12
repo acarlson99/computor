@@ -9,9 +9,6 @@ import Text.Regex.Posix
 import Poly.Term
 import Util
 
-maybeToEither _ (Just a) = Right a
-maybeToEither est Nothing = Left est
-
 stripWhitespace :: String -> String
 stripWhitespace = concat . words
 

@@ -19,3 +19,6 @@ sortBuckets f (x:xs) =
 showSepList :: Show a => String -> [a] -> String
 showSepList sep (x:xs) = sep ++ show x ++ showSepList sep xs
 showSepList _ [] = ""
+
+maybeToEither _ (Just a) = Right a
+maybeToEither errst Nothing = Left errst
