@@ -9,14 +9,14 @@ import qualified Poly.Solve as P
 import Parse
 import Eval
 
-handleCmd Quit st ln     = return ()
-handleCmd Help st ln     = do print "HELP MSG"
-                              interpret st ln
-handleCmd (EvalPoly xs) st ln = do P.printRes $ P.solve xs
-                                   interpret st ln
-handleCmd Reset _ ln = interpret emptyState ln
+evalCmd Quit st ln          = return ()
+evalCmd Help st ln          = do print "HELP MSG"
+                                 interpret st ln
+evalCmd (EvalPoly xs) st ln = do P.printRes $ P.solve xs
+                                 interpret st ln
+evalCmd Reset _ ln          = interpret emptyState ln
 
-evalExpr [(Command cmd,"")] st ln = handleCmd cmd st ln
+evalExpr [(Command cmd,"")] st ln = evalCmd cmd st ln
 evalExpr exp state lnum          = let (newst,pm) = eval exp state
                                    in do
                                    pm
