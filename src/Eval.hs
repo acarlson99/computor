@@ -41,13 +41,17 @@ evalExpr st (Operation (op,lhs,rhs)) = do
 -- ~ evalExpr n _ = return n
 -- ~ evalExpr st exp = Left $ "unimplemented: " ++ show exp
 
+evalInput :: ParseTree -> CalcState -> (CalcState, IO())
+evalInput (Expr' expr) st = (st, print $ evalExpr st expr)
+evalInput (Defun (Ident fn,args,body)) st = (CalcState (M.insert fn (args,body) (getFuncs st)) (getVars st)
+                                                , print $ Defun (Ident fn,args,body))
+evalInput (Assignment (Ident idnt,body)) st      = (CalcState (getFuncs st) (M.insert idnt body (getVars st))
+                                                       ,  print $ Assignment (Ident idnt,body))
+evalInput (Error str) st = (st, putStrLn $ "ERROR: " ++ str)
+evalInput expr             st = (st, print expr)
+
 eval :: [(ParseTree,String)] -> CalcState -> (CalcState, IO ())
 eval []               st = (st, return ())
 eval [(expr,x:xs)]    st = (st, putStrLn $ "ERROR: unrecognized tokens: '" ++ (x:xs) ++ "' in expression '" ++ show expr ++ "'")
 eval (x:y:ys)         st = (st, putStrLn $ "WAIT WTF THIS SHOULD NOT HAPPEN" ++ show (x:y:ys))
-eval [(Expr' expr,_)] st = (st, print $ evalExpr st expr)
-eval [(Defun (Ident fn,args,body),_)] st = (CalcState (M.insert fn (args,body) (getFuncs st)) (getVars st)
-                                           , print $ Defun (Ident fn,args,body))
-eval [(Assignment (Ident idnt,body),_)] st      = (CalcState (getFuncs st) (M.insert idnt body (getVars st))
-                                             ,  print $ Assignment (Ident idnt,body))
-eval expr             st = (st, print expr)
+eval [(expr,"")]      st = evalInput expr st
