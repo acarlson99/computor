@@ -9,6 +9,7 @@ data Cmd = Quit
          | EvalPoly String
          | Help
          | Reset
+         | Dump
          deriving (Show,Eq)
 
 newtype Ident = Ident String deriving (Eq)

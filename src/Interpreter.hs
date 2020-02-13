@@ -15,6 +15,8 @@ evalCmd Help st ln          = do print "HELP MSG"
 evalCmd (EvalPoly xs) st ln = do P.printRes $ P.solve xs
                                  interpret st ln
 evalCmd Reset _ ln          = interpret emptyState ln
+evalCmd Dump st ln          = do print st
+                                 interpret st ln
 
 evalExpr [(Command cmd,"")] st ln = evalCmd cmd st ln
 evalExpr exp state lnum          = let (newst,pm) = eval exp state

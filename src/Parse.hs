@@ -47,6 +47,7 @@ parseError = Error <$> some allTokens
 parseCmd = token $ char '@' *> (parseCmdQuit
                             <|> parseCmdHelp
                             <|> parseCmdPoly
+                            <|> parseCmdDump
                             <|> parseCmdReset)
 
 parseCmdQuit = (string "quit" <|> string "exit") $> Command Quit
@@ -56,6 +57,8 @@ parseCmdHelp = string "help" $> Command Help
 parseCmdPoly = string "poly" *> (Command . EvalPoly <$> many allTokens)
 
 parseCmdReset = string "reset" $> Command Reset
+
+parseCmdDump = string "dump" $> Command Dump
 
 -- ~ parseExpr :: Parser Expr
 parseExpr = token $ parseOperation
