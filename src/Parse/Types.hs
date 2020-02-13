@@ -24,12 +24,14 @@ data Operator = Add
                | MatrixMult
                | Other String
                deriving (Eq)
+               -- ~ deriving (Eq,Show)
 
 data Primitive = Number Int
                | Float Float
                | Identifier Ident
                | Complex (T.Complex Float)
                deriving (Eq)
+               -- ~ deriving (Eq,Show)
 
 data Expr = Primitive' Primitive
 
@@ -39,6 +41,7 @@ data Expr = Primitive' Primitive
           | Funcall Fcall
           | Operation (Operator, Expr, Expr)   -- 1 + 2 === + 1 2
           deriving (Eq)
+               -- ~ deriving (Eq,Show)
 
 data ParseTree = Expr' Expr
                | Assignment (Ident, Expr)
@@ -48,6 +51,56 @@ data ParseTree = Expr' Expr
 
                | Error String
                deriving (Eq)
+               -- ~ deriving (Eq,Show)
+
+instance Num Primitive where
+    Number n + Number n' = Number $ n + n'
+    Float f + Float f' = Float $ f + f'
+    Number n + Float f = Float $ fromIntegral n + f
+    Complex c + Complex c' = Complex $ c + c'
+    Complex c + Number n = Complex $ fromIntegral n + c
+    Complex c + Float f = Complex $ c + T.Complex (f,0)
+
+    Identifier _ + _ = undefined
+
+    b+a = a+b
+
+    Number n - Number n' = Number $ n - n'
+    Float f - Float f' = Float $ f - f'
+    Number n - Float f = Float $ fromIntegral n - f
+    Float f - Number n = Float $ f - fromIntegral n
+    Complex c - Complex c' = Complex $ c - c'
+    Complex c - Number n = Complex $ c - fromIntegral n
+    Number n - Complex c = Complex $ fromIntegral n - c
+    Complex c - Float f = Complex $ c - T.Complex (f,0)
+    Float f - Complex c = Complex $ T.Complex (f,0) - c
+
+    Identifier _ - _ = undefined
+
+    Number n * Number n' = Number $ n * n'
+    Float f * Float f' = Float $ f * f'
+    Number n * Float f = Float $ fromIntegral n * f
+    Complex c * Complex c' = Complex $ c * c'
+    Complex c * Number n = Complex $ fromIntegral n * c
+    Complex c * Float f = Complex $ c * T.Complex (f,0)
+
+    Identifier _ * _ = undefined
+
+    b*a = a*b
+
+    abs (Number a) = Number $ abs a
+    abs (Float f) = Float $ abs f
+    abs (Complex c) = Complex $ abs c
+
+    abs (Identifier _) = undefined
+
+    signum (Number a) = Number $ signum a
+    signum (Float a) = Float $ signum a
+    signum (Complex a) = Complex $ signum a
+
+    signum (Identifier _) = undefined
+
+    fromInteger i = Number (fromInteger i)
 
 instance Show Operator where
     show Add        = "+"
@@ -88,3 +141,11 @@ instance Show ParseTree where
     -- ~ show (Defun (f,xs,rhs)) = show (Fcall (f, map (Primitive' . Identifier) xs)) ++ show rhs
     show (Command cmd) = show cmd
     show (Error err) = "UNKNOWN VALUES: " ++ err
+
+-- ~ exprMap f (Primitive' p) = f p
+-- ~ exprMap f (Array xs) = Array $ fmap (exprMap f) xs
+-- ~ exprMap f (Matrix xs) = Matrix $ fmap (exprMap f) xs
+-- ~ exprMap f (Funcall (Fcall (fn,xs))) = Funcall $ Fcall (fn, ys)
+                                    -- ~ where ys = map (exprMap f) xs
+-- ~ exprMap f (Operation (op,lhs,rhs)) = Operation (op, exprMap f lhs
+                                                  -- ~ , exprMap f rhs)

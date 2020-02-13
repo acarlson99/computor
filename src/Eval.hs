@@ -3,15 +3,35 @@ module Eval
     , emptyState
     ) where
 
+import Data.Map
+import qualified Data.Map as M
+
+import Util
+import qualified Types as T
+
 import Parse.Types
 
-newtype CalcState = C [String]
+data CalcState = CalcState { getFuncs :: M.Map String (Ident, [Ident], Expr)
+                           , getIdent :: M.Map String Expr }
 
 emptyState :: CalcState
-emptyState = C []
+emptyState = CalcState M.empty M.empty
 
-evalExpr (Primitive' n) = Right n
-evalExpr _ = Left "Undefined"
+-- ~ evalPrim :: Num a => Primitive -> CalcState -> Either String a
+-- ~ evalPrim (Number n)             st = Right n
+-- ~ evalPrim (Float f)              st = Right f
+-- ~ evalPrim (Identifier (Ident s)) st = do
+    -- ~ exp <- maybeToEither ("Unable to find identifier: " ++ s) $ M.lookup s $ getIdent st
+    -- ~ evalExpr exp
+evalPrim (Identifier (Ident s)) st = do
+    exp <- maybeToEither ("Unable to find identifier: " ++ s) $ M.lookup s $ getIdent st
+    evalExpr exp
+-- ~ evalPrim (Complex c)            st = Right c
+-- ~ evalPrim (Complex (T.Complex (r,c)))            st = return $ T.Complex (r,c)
+
+-- ~ evalExpr :: (Show a, Num a) => Expr -> Either String a
+evalExpr (Primitive' n) = return n
+evalExpr exp = Left $ "unimplemented: " ++ show exp
 
 eval :: [(ParseTree,String)] -> CalcState -> (CalcState, IO ())
 eval []               st = (st, return ())
