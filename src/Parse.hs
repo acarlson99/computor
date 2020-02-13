@@ -97,6 +97,7 @@ parseDefun = Defun <$> token defun
 
 operand = parseFuncall
         <|> (Primitive' <$> parsePrimitive)
+        <|> parseIdentifier
         <|> parseMatrix
         <|> parseArray
         <|> parseParenExpr      -- handle paren for cases like (1+2)^3

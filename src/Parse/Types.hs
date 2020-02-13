@@ -60,7 +60,6 @@ instance Num Primitive where
     Complex c + Complex c' = Complex $ c + c'
     Complex c + Number n = Complex $ fromIntegral n + c
     Complex c + Float f = Complex $ c + T.Complex (f,0)
-
     b+a = a+b
 
     Number n - Number n' = Number $ n - n'
@@ -79,7 +78,6 @@ instance Num Primitive where
     Complex c * Complex c' = Complex $ c * c'
     Complex c * Number n = Complex $ fromIntegral n * c
     Complex c * Float f = Complex $ c * T.Complex (f,0)
-
     b*a = a*b
 
     abs (Number a) = Number $ abs a
@@ -91,6 +89,11 @@ instance Num Primitive where
     signum (Complex a) = Complex $ signum a
 
     fromInteger i = Number (fromInteger i)
+
+primToComplex :: Primitive -> T.Complex Float
+primToComplex (Number p) = fromIntegral p
+primToComplex (Float f) = T.Complex (f,0)
+primToComplex (Complex c) = c
 
 instance Show Operator where
     show Add        = "+"
