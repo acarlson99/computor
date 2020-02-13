@@ -28,12 +28,12 @@ data Operator = Add
 
 data Primitive = Number Int
                | Float Float
-               | Identifier Ident
                | Complex (T.Complex Float)
                deriving (Eq)
                -- ~ deriving (Eq,Show)
 
 data Expr = Primitive' Primitive
+          | Identifier Ident
 
           | Array [Expr]
           | Matrix [Expr]
@@ -61,8 +61,6 @@ instance Num Primitive where
     Complex c + Number n = Complex $ fromIntegral n + c
     Complex c + Float f = Complex $ c + T.Complex (f,0)
 
-    Identifier _ + _ = undefined
-
     b+a = a+b
 
     Number n - Number n' = Number $ n - n'
@@ -75,8 +73,6 @@ instance Num Primitive where
     Complex c - Float f = Complex $ c - T.Complex (f,0)
     Float f - Complex c = Complex $ T.Complex (f,0) - c
 
-    Identifier _ - _ = undefined
-
     Number n * Number n' = Number $ n * n'
     Float f * Float f' = Float $ f * f'
     Number n * Float f = Float $ fromIntegral n * f
@@ -84,21 +80,15 @@ instance Num Primitive where
     Complex c * Number n = Complex $ fromIntegral n * c
     Complex c * Float f = Complex $ c * T.Complex (f,0)
 
-    Identifier _ * _ = undefined
-
     b*a = a*b
 
     abs (Number a) = Number $ abs a
     abs (Float f) = Float $ abs f
     abs (Complex c) = Complex $ abs c
 
-    abs (Identifier _) = undefined
-
     signum (Number a) = Number $ signum a
     signum (Float a) = Float $ signum a
     signum (Complex a) = Complex $ signum a
-
-    signum (Identifier _) = undefined
 
     fromInteger i = Number (fromInteger i)
 
@@ -121,11 +111,11 @@ instance Show Fcall where
 instance Show Primitive where
     show (Number n) = show n
     show (Float f) = show f
-    show (Identifier idn) = show idn
     show (Complex cplx) = show cplx
 
 instance Show Expr where
     show (Primitive' prim)        = show prim
+    show (Identifier idn)         = show idn
     show (Array (x:xs))           = '[' : show x  ++ showSepList ", " xs ++ "]"
     show (Array [])               = "[]"
     show (Matrix (x:xs))          = '[' : show x ++ showSepList "; " xs ++ "]"

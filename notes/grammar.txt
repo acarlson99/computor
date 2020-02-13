@@ -9,6 +9,7 @@ EXPR:
     | PRIMITIVE
     | MATRIX
     | ARRAY
+    | IDENTIFIER
     | \(EXPR\)
 
 OPERAND:
@@ -34,7 +35,6 @@ MATRIX:
     | \[ARRAY(?:;ARRAY)*\]
 
 PRIMITIVE:
-    | IDENTIFIER
     | COMPLEX
     | FLOAT
     | INT

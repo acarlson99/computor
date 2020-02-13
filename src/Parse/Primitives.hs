@@ -22,13 +22,6 @@ import Parse.Types
 
 parseNumber = Number <$> integer
 
-parseIdent = Ident <$> identifier
-
-parseIdentifier = Identifier <$> parseIdent
-
--- ~ parseIdentifier' :: Parser Expr
--- ~ parseIdentifier' = Primitive <$> (Identifier <$> parseIdent)
-
 parseFloat' :: Parser Float
 parseFloat' = do
     lhs <- fromIntegral <$> natural
@@ -66,7 +59,7 @@ parseComplex = Complex <$> token complex
 parsePrimitive :: Parser Primitive
 parsePrimitive =
         parseComplex
-    <|> parseIdentifier
+    -- ~ <|> parseIdentifier
     <|> parseFloat
     <|> parseNumber
     <|> do

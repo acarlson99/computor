@@ -63,6 +63,7 @@ parseExpr = token $ parseOperation
     <|> (Primitive' <$> parsePrimitive)
     <|> parseMatrix
     <|> parseArray
+    <|> parseIdentifier
     <|> parseParenExpr
 
 parseParenExpr = char '(' *> parseExpr <* char ')'
@@ -108,7 +109,7 @@ operation = do
         return (op, lhs, rhs)
     <|> do          -- 4x = 4*x
         lhs <- operand
-        rhs <- Primitive' <$> parseIdentifier
+        rhs <- parseIdentifier
         return (Mult, lhs, rhs)
 
 parseOperation = Operation <$> token operation
@@ -147,3 +148,10 @@ parseArray = Array <$> array
 matrix = parseArrOnDelim ';' parseArray
 
 parseMatrix = Matrix <$> matrix
+
+parseIdent = Ident <$> identifier
+
+parseIdentifier = Identifier <$> parseIdent
+
+-- ~ parseIdentifier' :: Parser Expr
+-- ~ parseIdentifier' = Primitive <$> (Identifier <$> parseIdent)
