@@ -47,7 +47,7 @@ assignVar st ident val =
 
 
 
-
+-- apply operation (Add,Mult,...) to BaseTypes erroring if unsupported
 applyOp Add (Int lhs) (Int rhs) = return $ Int $ lhs + rhs
 applyOp op lhs rhs =
     Left
@@ -64,34 +64,42 @@ evalExpr _ (Primitive' n) = case n of
     (Float   n) -> return $ Flt n
     (Complex n) -> return $ Cpx n
 evalExpr st (Identifier (Ident ident)) =
-    maybeToEither ("variable undefined: " ++ ident) $ M.lookup ident $ getVars
+    maybeToEither ("undefined variable: " ++ ident) $ M.lookup ident $ getVars
         st
 
 evalExpr st (Array xs) = Arr <$> traverse (evalExpr st) xs
 evalExpr st (Matrix xs) = Mtx <$> mapM (evalExpr st) xs
 
 evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
+    -- get function args and body or error if undefined
     (args, body) <-
-        maybeToEither ("function undefined: " ++ ident)
+        maybeToEither ("undefined function: " ++ ident)
         $ M.lookup ident
         $ getFuncs st
-    -- TODO: check arg list against supplied args
-    newArgs <- mapM (evalExpr st) xs
-    evalExpr
-        ( foldr (\(Ident ident, val) st -> assignVar st ident val) st
-        $ zip args newArgs
-        )
-        body
-    -- ~ evalExpr st body
+    -- check arg list against supplied args
+    if (length xs) /= (length args)
+        then Left $ "Not enough arguments in function call: " ++ show
+            (Funcall (Fcall (Ident ident, xs)))
+        else do
+            -- evaluate args, erroring on failure
+            newArgs <- mapM (evalExpr st) xs
+            -- evaluate body with state updated with args
+            evalExpr
+                ( foldr (\(Ident ident, val) st -> assignVar st ident val) st
+                $ zip args newArgs
+                )
+                body
 evalExpr st (Operation (op, lhs, rhs)) = do
     lhs' <- evalExpr st lhs
     rhs' <- evalExpr st rhs
     applyOp op lhs' rhs'
 
-
-
+-- assignation, function definition, expression evaluation
+-- updates state with function defs, vars
 evalInput :: ParseTree -> CalcState -> (CalcState, IO ())
-evalInput (Expr' expr) st = (st, print $ evalExpr st expr)
+evalInput (Expr' expr) st = (st, printEither $ evalExpr st expr)
+    where printEither (Left err) = putStrLn err
+          printEither (Right val) = print val
 evalInput (Defun (Ident fn, args, body)) st =
     (assignFun st fn (args, body), print $ Defun (Ident fn, args, body))
 evalInput (Assignment (Ident ident, body)) st = case evalExpr st body of
@@ -100,8 +108,7 @@ evalInput (Assignment (Ident ident, body)) st = case evalExpr st body of
 evalInput (Error str) st = (st, putStrLn $ "ERROR: unrecognized value " ++ str)
 evalInput expr        st = (st, print expr)
 
-
-
+-- match parsetree and evaluate, returning new state
 eval :: [(ParseTree, String)] -> CalcState -> (CalcState, IO ())
 eval [] st = (st, return ())
 eval [(expr, x : xs)] st =

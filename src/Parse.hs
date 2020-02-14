@@ -116,16 +116,16 @@ operand =
         <|> parseParenExpr      -- handle paren for cases like (1+2)^3
 
 -- TODO: implement operator precidence
-operation =
-    do
-            lhs <- operand
-            op  <- parseOperator
-            rhs <- parseExpr
-            return (op, lhs, rhs)
-        <|> do          -- 4x = 4*x
-                lhs <- operand
-                rhs <- parseIdentifier
-                return (Mult, lhs, rhs)
+operation = do
+    lhs <- operand
+    op  <- parseOperator
+    rhs <- parseExpr
+    return (op, lhs, rhs)
+        -- Commented out because it caused weird bugs
+        -- ~ <|> do          -- 4x = 4*x
+                -- ~ lhs <- operand
+                -- ~ rhs <- parseIdentifier
+                -- ~ return (Mult, lhs, rhs)
 
 parseOperation = Operation <$> token operation
 

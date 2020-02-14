@@ -10,6 +10,7 @@ import qualified Poly.Solve                    as P
 import           Parse
 import           Eval
 
+-- run builtin commands
 evalCmd Quit st ln = return ()
 evalCmd Help st ln = do
     print "HELP MSG"
@@ -29,7 +30,7 @@ evalExpr exp state lnum =
             pm
             interpret newst lnum
 
--- ~ interpret :: a -> Int -> IO ()
+-- read line, parse, evaluate, recurse
 interpret state linenum = do
     maybeLine <- readline $ show linenum ++ " > "
     case maybeLine of
