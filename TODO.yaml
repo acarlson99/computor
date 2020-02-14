@@ -4,10 +4,8 @@ TODO:
             return [(Complex (0,12), "12i12i")]
         - implement operator precidence (PEMDAS)
         - fix weird spacing
-    - state:
-        - create container for state
-    - walk parse tree
-    - make types and functions work
+    - implement operations
+    - fix assignment so ```a=1 b=a a=5``` does not change b to 5
 
 DONE:
     - lexer:
@@ -24,3 +22,7 @@ DONE:
         - lexer blueprint
         - generate parse tree
         - make defun not use parseFcall.  `f(1,2,3,4) = 7` is invalid
+    - state:
+        - create container for state
+    - walk parse tree
+    - make types and functions work
