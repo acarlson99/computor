@@ -129,7 +129,7 @@ TODO: add operator precedence
                 -- ~ rhs <- parseIdentifier
                 -- ~ return (Mult, lhs, rhs)
 
-makeOp lhsf opf rhsf = do
+parseOp' lhsf opf rhsf = do
     lhs <- lhsf
     op  <- opf
     rhs <- rhsf
@@ -137,30 +137,24 @@ makeOp lhsf opf rhsf = do
 
 operation = operation1
 
+operator1 = string "+" <|> string "-"
+parseOperator1 = strToOperator <$> token operator1
+operator2 = string "**" <|> string "*" <|> string "/"
+parseOperator2 = strToOperator <$> token operator2
+operator3 = string "^"
+parseOperator3 = strToOperator <$> token operator3
+
 operation1 =
-    makeOp operation2
-           (strToOperator <$> token (string "+" <|> string "-"))
-           (operation1 <|> operand)
+    parseOp' operation2 parseOperator1 (operation1 <|> operand)
         <|> operation2
-        <|> makeOp operand
-                   (strToOperator <$> token (string "+" <|> string "-"))
-                   (operation1 <|> operand)
+        <|> parseOp' operand parseOperator1 (operation1 <|> operand)
 
 operation2 =
-    makeOp operation3
-           (strToOperator <$> token (string "*" <|> string "/"))
-           (operation2 <|> operand) -- maybe operand
+    parseOp' operation3 parseOperator2 (operation2 <|> operand)
         <|> operation3
-        -- ~ <|> makeOp operation3
-                   -- ~ (strToOperator <$> token (string "*" <|> string "/"))
-                   -- ~ operand
-        <|> makeOp operand
-                   (strToOperator <$> token (string "*" <|> string "/"))
-                   (operation2 <|> operand)
+        <|> parseOp' operand parseOperator2 (operation2 <|> operand)
 
-operation3 = makeOp operand
-                    (strToOperator <$> token (string "^"))
-                    (operation3 <|> operand)
+operation3 = parseOp' operand parseOperator3 (operation3 <|> operand)
 
 -- ~ operation2 = do
     -- ~ lhs <- ((Operation <$> operation3) <|> operand)
