@@ -75,8 +75,14 @@ evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
         maybeToEither ("function undefined: " ++ ident)
         $ M.lookup ident
         $ getFuncs st
-    -- TODO: assign variables in scope
-    evalExpr st body
+    -- TODO: check arg list against supplied args
+    newArgs <- mapM (evalExpr st) xs
+    evalExpr
+        ( foldr (\(Ident ident, val) st -> assignVar st ident val) st
+        $ zip args newArgs
+        )
+        body
+    -- ~ evalExpr st body
 evalExpr st (Operation (op, lhs, rhs)) = do
     lhs' <- evalExpr st lhs
     rhs' <- evalExpr st rhs
