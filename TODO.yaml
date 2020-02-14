@@ -5,6 +5,7 @@ TODO:
         - implement operator precidence (PEMDAS)
         - fix weird spacing
     - implement operations
+    - add tests for order of operations
 
 DONE:
     - lexer:
