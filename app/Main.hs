@@ -1,10 +1,10 @@
 module Main where
 
-import System.Environment
+import           System.Environment
 
-import Poly.Solve
-import Interpreter
-import Eval
+import           Poly.Solve
+import           Interpreter
+import           Eval
 
 printUsage = do
     putStrLn "usage: stack run (help|poly|repl) [args]"
@@ -13,10 +13,10 @@ printUsage = do
     putStrLn "       repl - run repl.  NOTE: not yet implemented"
     putStrLn "       help - help message"
 
-runComp ("help":xs) = printUsage
-runComp ("poly":x:xs) = mapM_ (printRes . solve) $ x:xs
-runComp ("repl":xs) = interpret emptyState 0
-runComp _ = printUsage
+runComp ("help"     : xs) = printUsage
+runComp ("poly" : x : xs) = mapM_ (printRes . solve) $ x : xs
+runComp ("repl"     : xs) = interpret emptyState 0
+runComp _                 = printUsage
 
 main :: IO ()
 main = do

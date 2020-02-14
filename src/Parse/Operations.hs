@@ -1,17 +1,19 @@
 module Parse.Operations
     ( parseOperator
-    ) where
+    )
+where
 
-import Parsing
+import           Parsing
 
-import Parse.Types
+import           Parse.Types
 
-oper = string "+"
-   <|> string "-"
-   <|> string "**"
-   <|> string "*"
-   <|> string "/"
-   <|> string "^"
+oper =
+    string "+"
+        <|> string "-"
+        <|> string "**"
+        <|> string "*"
+        <|> string "/"
+        <|> string "^"
 
 operator = token oper
 
