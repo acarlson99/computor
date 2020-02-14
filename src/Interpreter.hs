@@ -35,7 +35,7 @@ evalExpr exp state lnum =
 
 -- read line, parse, evaluate, recurse
 interpret state linenum = do
-    maybeLine <- readline $ show linenum ++ " > "
+    maybeLine <- readline $ show linenum ++ "# "
     case maybeLine of
         Nothing -> return ()
         Just ln -> do

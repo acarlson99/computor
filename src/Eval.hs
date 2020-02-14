@@ -49,6 +49,10 @@ assignVar st ident val =
 
 -- apply operation (Add,Mult,...) to BaseTypes erroring if unsupported
 applyOp Add (Int lhs) (Int rhs) = return $ Int $ lhs + rhs
+applyOp Sub (Int lhs) (Int rhs) = return $ Int $ lhs - rhs
+applyOp Mult (Int lhs) (Int rhs) = return $ Int $ lhs * rhs
+applyOp Div (Int lhs) (Int rhs) = return $ Int $ lhs `div` rhs
+applyOp Exp (Int lhs) (Int rhs) = return $ Int $ lhs ^ rhs
 applyOp op lhs rhs =
     Left
         $  "Unimplemented instruction: "
@@ -77,7 +81,7 @@ evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
         $ M.lookup ident
         $ getFuncs st
     -- check arg list against supplied args
-    if (length xs) /= (length args)
+    if length xs /= length args
         then Left $ "Not enough arguments in function call: " ++ show
             (Funcall (Fcall (Ident ident, xs)))
         else do
