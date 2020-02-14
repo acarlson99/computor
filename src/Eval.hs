@@ -50,6 +50,9 @@ assignVar st ident val =
 -- apply operation (Add,Mult,...) to BaseTypes erroring if unsupported
 applyOp Add (Int lhs) (Int rhs) = return $ Int $ lhs + rhs
 applyOp Sub (Int lhs) (Int rhs) = return $ Int $ lhs - rhs
+applyOp Mult (Int lhs) (Int rhs) = return $ Int $ lhs * rhs
+applyOp Div (Int lhs) (Int rhs) = return $ Int $ lhs `div` rhs
+applyOp Exp (Int lhs) (Int rhs) = return $ Int $ lhs ^ rhs
 applyOp op lhs rhs =
     Left
         $  "Unimplemented instruction: "
