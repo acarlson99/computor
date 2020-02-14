@@ -25,10 +25,13 @@ evalCmd Dump  st ln = do
 
 evalExpr [(Command cmd, "")] st ln = evalCmd cmd st ln
 evalExpr exp state lnum =
-    let (newst, pm) = eval exp state
-    in  do
-            pm
-            interpret newst lnum
+    -- ~ let (newst, pm) = eval exp state
+    let res = eval exp state
+    in case res of
+        Right (newSt,io) -> do io
+                               interpret newSt lnum
+        Left  err        -> do putStrLn $ "ERROR: " ++ err
+                               interpret state lnum
 
 -- read line, parse, evaluate, recurse
 interpret state linenum = do

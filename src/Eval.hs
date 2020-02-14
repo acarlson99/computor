@@ -96,30 +96,25 @@ evalExpr st (Operation (op, lhs, rhs)) = do
 
 -- assignation, function definition, expression evaluation
 -- updates state with function defs, vars
-evalInput :: ParseTree -> CalcState -> (CalcState, IO ())
-evalInput (Expr' expr) st = (st, printEither $ evalExpr st expr)
-    where printEither (Left err) = putStrLn err
-          printEither (Right val) = print val
+evalInput :: ParseTree -> CalcState -> Either String (CalcState, IO ())
+evalInput (Expr' expr) st = do
+    res <- evalExpr st expr
+    return (st, print res)
 evalInput (Defun (Ident fn, args, body)) st =
-    (assignFun st fn (args, body), print $ Defun (Ident fn, args, body))
+    Right (assignFun st fn (args, body), print $ Defun (Ident fn, args, body))
 evalInput (Assignment (Ident ident, body)) st = case evalExpr st body of
-    Right v   -> (assignVar st ident v, print $ Assignment (Ident ident, body))
-    Left  err -> (st, print err)
-evalInput (Error str) st = (st, putStrLn $ "ERROR: unrecognized value " ++ str)
-evalInput expr        st = (st, print expr)
+    Right v   -> return (assignVar st ident v, print $ Assignment (Ident ident, body))
+    Left  err -> Left err
+evalInput (Error str) st = Left $ "unrecognized value " ++ str
+evalInput expr        st = return (st, print expr)
 
 -- match parsetree and evaluate, returning new state
-eval :: [(ParseTree, String)] -> CalcState -> (CalcState, IO ())
-eval [] st = (st, return ())
-eval [(expr, x : xs)] st =
-    ( st
-    , putStrLn
-        $  "ERROR: unparsed tokens: '"
+eval :: [(ParseTree, String)] -> CalcState -> Either String (CalcState, IO ())
+eval [] st = return (st, return ())
+eval [(expr, x : xs)] st = Left $ "unparsed tokens: '"
         ++ (x : xs)
         ++ "' in expression '"
         ++ show expr
         ++ "'"
-    )
-eval (x : y : ys) st =
-    (st, putStrLn $ "WAIT WTF THIS SHOULD NOT HAPPEN" ++ show (x : y : ys))
+eval (x : y : ys) st = Left $ "WAIT WTF THIS SHOULD NOT HAPPEN" ++ show (x : y : ys)
 eval [(expr, "")] st = evalInput expr st
