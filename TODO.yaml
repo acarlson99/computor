@@ -5,7 +5,6 @@ TODO:
         - implement operator precidence (PEMDAS)
         - fix weird spacing
     - implement operations
-    - fix assignment so ```a=1 b=a a=5``` does not change b to 5
 
 DONE:
     - lexer:
@@ -26,3 +25,4 @@ DONE:
         - create container for state
     - walk parse tree
     - make types and functions work
+    - fix assignment so ```a=1 b=a a=5``` does not change b to 5

@@ -20,14 +20,14 @@ data BaseType = Int Int
               deriving (Show,Eq)
 
 data CalcState = CalcState { getFuncs :: M.Map String ([Ident], Expr)
-                           , getVars :: M.Map String Expr }
+                           , getVars :: M.Map String BaseType }
 
 instance Show CalcState where
     show st = let fnc = M.toList $ getFuncs st
                   var = M.toList $ getVars st
             in
             foldr (\(n,(args,exp)) acc -> show (Defun (Ident n, args, exp)) ++ acc) "" fnc ++ ";"
-            ++ foldr (\(n,exp) acc -> show (Assignment (Ident n, exp)) ++ acc) ";" var
+            ++ foldr (\(n,exp) acc -> show n ++ " = " ++ show exp ++ acc) ";" var
 
 emptyState :: CalcState
 emptyState = CalcState M.empty M.empty
@@ -42,9 +42,7 @@ evalExpr _ (Primitive' n) = case n of
                             (Number n) ->  return $ Int n
                             (Float n)  ->  return $ Flt n
                             (Complex n) -> return $ Cpx n
-evalExpr st (Identifier (Ident idnt)) = do
-    v <- maybeToEither ("variable undefined: " ++ idnt) $ M.lookup idnt $ getVars st
-    evalExpr st v
+evalExpr st (Identifier (Ident idnt)) = maybeToEither ("variable undefined: " ++ idnt) $ M.lookup idnt $ getVars st
 
 evalExpr st (Array xs) = Arr <$> traverse (evalExpr st) xs
 evalExpr st (Matrix xs) = Mtx <$> mapM (evalExpr st) xs
@@ -63,18 +61,21 @@ evalExpr st (Operation (op,lhs,rhs)) = do
 
 
 evalInput :: ParseTree -> CalcState -> (CalcState, IO())
-evalInput (Expr' expr) st = (st, print $ evalExpr st expr)
-evalInput (Defun (Ident fn,args,body)) st = (CalcState (M.insert fn (args,body) (getFuncs st)) (getVars st)
+evalInput (Expr' expr)                   st = (st, print $ evalExpr st expr)
+evalInput (Defun (Ident fn,args,body))   st = (CalcState (M.insert fn (args,body) (getFuncs st)) (getVars st)
                                                 , print $ Defun (Ident fn,args,body))
-evalInput (Assignment (Ident idnt,body)) st = (CalcState (getFuncs st) (M.insert idnt body (getVars st))
-                                              ,  print $ Assignment (Ident idnt,body))  -- NOTE: a=1 b=a a=5 changes b to 5
-evalInput (Error str) st = (st, putStrLn $ "ERROR: " ++ str)
-evalInput expr             st = (st, print expr)
+evalInput (Assignment (Ident idnt,body)) st = do
+    case evalExpr st body of
+        Right v -> (CalcState (getFuncs st) ( M.insert idnt v (getVars st))
+                                            , print $ Assignment (Ident idnt,body))
+        Left err -> (st, print err)
+evalInput (Error str) st = (st, putStrLn $ "ERROR: unrecognized value " ++ str)
+evalInput expr        st = (st, print expr)
 
 
 
 eval :: [(ParseTree,String)] -> CalcState -> (CalcState, IO ())
 eval []               st = (st, return ())
-eval [(expr,x:xs)]    st = (st, putStrLn $ "ERROR: unrecognized tokens: '" ++ (x:xs) ++ "' in expression '" ++ show expr ++ "'")
+eval [(expr,x:xs)]    st = (st, putStrLn $ "ERROR: unparsed tokens: '" ++ (x:xs) ++ "' in expression '" ++ show expr ++ "'")
 eval (x:y:ys)         st = (st, putStrLn $ "WAIT WTF THIS SHOULD NOT HAPPEN" ++ show (x:y:ys))
 eval [(expr,"")]      st = evalInput expr st
