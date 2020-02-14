@@ -39,6 +39,13 @@ instance Show CalcState where
 emptyState :: CalcState
 emptyState = CalcState M.empty M.empty
 
+assignFun st ident val =
+    CalcState (M.insert ident val (getFuncs st)) (getVars st)
+
+assignVar st ident val =
+    CalcState (getFuncs st) (M.insert ident val (getVars st))
+
+
 
 
 applyOp Add (Int lhs) (Int rhs) = return $ Int $ lhs + rhs
@@ -56,16 +63,17 @@ evalExpr _ (Primitive' n) = case n of
     (Number  n) -> return $ Int n
     (Float   n) -> return $ Flt n
     (Complex n) -> return $ Cpx n
-evalExpr st (Identifier (Ident idnt)) =
-    maybeToEither ("variable undefined: " ++ idnt) $ M.lookup idnt $ getVars st
+evalExpr st (Identifier (Ident ident)) =
+    maybeToEither ("variable undefined: " ++ ident) $ M.lookup ident $ getVars
+        st
 
 evalExpr st (Array xs) = Arr <$> traverse (evalExpr st) xs
 evalExpr st (Matrix xs) = Mtx <$> mapM (evalExpr st) xs
 
-evalExpr st (Funcall (Fcall (Ident idnt, xs))) = do
+evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
     (args, body) <-
-        maybeToEither ("function undefined: " ++ idnt)
-        $ M.lookup idnt
+        maybeToEither ("function undefined: " ++ ident)
+        $ M.lookup ident
         $ getFuncs st
     -- TODO: assign variables in scope
     evalExpr st body
@@ -79,15 +87,10 @@ evalExpr st (Operation (op, lhs, rhs)) = do
 evalInput :: ParseTree -> CalcState -> (CalcState, IO ())
 evalInput (Expr' expr) st = (st, print $ evalExpr st expr)
 evalInput (Defun (Ident fn, args, body)) st =
-    ( CalcState (M.insert fn (args, body) (getFuncs st)) (getVars st)
-    , print $ Defun (Ident fn, args, body)
-    )
-evalInput (Assignment (Ident idnt, body)) st = case evalExpr st body of
-    Right v ->
-        ( CalcState (getFuncs st) (M.insert idnt v (getVars st))
-        , print $ Assignment (Ident idnt, body)
-        )
-    Left err -> (st, print err)
+    (assignFun st fn (args, body), print $ Defun (Ident fn, args, body))
+evalInput (Assignment (Ident ident, body)) st = case evalExpr st body of
+    Right v   -> (assignVar st ident v, print $ Assignment (Ident ident, body))
+    Left  err -> (st, print err)
 evalInput (Error str) st = (st, putStrLn $ "ERROR: unrecognized value " ++ str)
 evalInput expr        st = (st, print expr)
 
