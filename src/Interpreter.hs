@@ -40,4 +40,7 @@ interpret state linenum = do
         Nothing -> return ()
         Just ln -> do
             addHistory ln
-            evalExpr (readExpr ln) state (linenum + 1)
+            -- ~ evalExpr (readExpr ln) state (linenum + 1)
+            let exp = readExpr ln
+            print exp
+            evalExpr exp state (linenum + 1)

@@ -133,29 +133,34 @@ makeOp lhsf opf rhsf = do
     lhs <- lhsf
     op  <- opf
     rhs <- rhsf
-    return (op, lhs, rhs)
+    return $ Operation (op, lhs, rhs)
 
 operation = operation1
 
 operation1 =
-    makeOp (Operation <$> operation2)
-           (strToOperator <$> token (string "^"))
-           parseExpr
+    makeOp operation2
+           (strToOperator <$> token (string "+" <|> string "-"))
+           (operation1 <|> operand)
         <|> operation2
-        <|> makeOp operand (strToOperator <$> token (string "^")) parseExpr
+        <|> makeOp operand
+                   (strToOperator <$> token (string "+" <|> string "-"))
+                   (operation1 <|> operand)
 
 operation2 =
-    makeOp (Operation <$> operation3)
+    makeOp operation3
            (strToOperator <$> token (string "*" <|> string "/"))
-           parseExpr -- maybe operand
+           (operation2 <|> operand) -- maybe operand
         <|> operation3
+        -- ~ <|> makeOp operation3
+                   -- ~ (strToOperator <$> token (string "*" <|> string "/"))
+                   -- ~ operand
         <|> makeOp operand
                    (strToOperator <$> token (string "*" <|> string "/"))
-                   parseExpr
+                   (operation2 <|> operand)
 
 operation3 = makeOp operand
-                    (strToOperator <$> token (string "+" <|> string "-"))
-                    (Operation <$> operation3 <|> operand)
+                    (strToOperator <$> token (string "^"))
+                    (operation3 <|> operand)
 
 -- ~ operation2 = do
     -- ~ lhs <- ((Operation <$> operation3) <|> operand)
@@ -170,7 +175,8 @@ operation3 = makeOp operand
     -- ~ rhs <- parseExpr
     -- ~ return (op, lhs, rhs)
 
-parseOperation = Operation <$> token operation
+-- ~ parseOperation = Operation <$> token operation
+parseOperation = token operation
 
 funcall =
     let f = parseIdent <* char '('
