@@ -1,5 +1,6 @@
 module Parse.Operations
     ( parseOperator
+    , strToOperator
     )
 where
 
