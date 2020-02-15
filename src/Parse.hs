@@ -19,18 +19,6 @@ import           Parse.Primitives
 import           Parse.Operations
 import           Parse.Types
 
-{-
-TODO: add operator precedence
-
--       -- unary minus
-()      -- paren/subexpression
-^       -- exponent
-*/      -- multiplication/division
-+-      -- addition/subtraction
-
-=       -- assignment
--}
-
 readExpr :: String -> [(ParseTree, String)]
 readExpr = parse parseLine
 
@@ -115,19 +103,74 @@ operand =
         <|> parseArray
         <|> parseParenExpr      -- handle paren for cases like (1+2)^3
 
+
+{-
+TODO: add operator precedence
+
+-       -- unary minus
+()      -- paren/subexpression
+^       -- exponent
+*/      -- multiplication/division
++-      -- addition/subtraction
+
+=       -- assignment
+-}
+
 -- TODO: implement operator precidence
-operation = do
-    lhs <- operand
-    op  <- parseOperator
-    rhs <- parseExpr
-    return (op, lhs, rhs)
+-- ~ operation = do
+    -- ~ lhs <- operand
+    -- ~ op  <- parseOperator
+    -- ~ rhs <- parseExpr
+    -- ~ return (op, lhs, rhs)
+
         -- Commented out because it caused weird bugs
         -- ~ <|> do          -- 4x = 4*x
                 -- ~ lhs <- operand
                 -- ~ rhs <- parseIdentifier
                 -- ~ return (Mult, lhs, rhs)
 
-parseOperation = Operation <$> token operation
+parseOp' lhsf opf rhsf = do
+    lhs <- lhsf
+    op  <- opf
+    rhs <- rhsf
+    return $ Operation (op, lhs, rhs)
+
+operation = operation1
+
+operator1 = string "+" <|> string "-"
+parseOperator1 = strToOperator <$> token operator1
+operator2 = string "**" <|> string "*" <|> string "/"
+parseOperator2 = strToOperator <$> token operator2
+operator3 = string "^"
+parseOperator3 = strToOperator <$> token operator3
+
+operation1 =
+    parseOp' operation2 parseOperator1 (operation1 <|> operand)
+        <|> operation2
+        <|> parseOp' operand parseOperator1 (operation1 <|> operand)
+
+operation2 =
+    parseOp' operation3 parseOperator2 (operation2 <|> operand)
+        <|> operation3
+        <|> parseOp' operand parseOperator2 (operation2 <|> operand)
+
+operation3 = parseOp' operand parseOperator3 (operation3 <|> operand)
+
+-- ~ operation2 = do
+    -- ~ lhs <- ((Operation <$> operation3) <|> operand)
+    -- ~ op <- strToOperator <$> token (string "*" <|> string "/")
+    -- ~ rhs <- parseExpr
+    -- ~ return (op, lhs, rhs)
+    -- ~ <|> operation3
+
+-- ~ operation3 = do
+    -- ~ lhs <- operand
+    -- ~ op <- strToOperator <$> token (string "+" <|> string "-")
+    -- ~ rhs <- parseExpr
+    -- ~ return (op, lhs, rhs)
+
+-- ~ parseOperation = Operation <$> token operation
+parseOperation = token operation
 
 funcall =
     let f = parseIdent <* char '('

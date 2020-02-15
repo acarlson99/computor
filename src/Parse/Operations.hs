@@ -1,5 +1,6 @@
 module Parse.Operations
     ( parseOperator
+    , strToOperator
     )
 where
 
@@ -19,10 +20,10 @@ operator = token oper
 
 strToOperator "+"  = Add
 strToOperator "-"  = Sub
+strToOperator "**" = MatrixMult
 strToOperator "*"  = Mult
 strToOperator "/"  = Div
 strToOperator "^"  = Exp
-strToOperator "**" = MatrixMult
 strToOperator s    = Other s
 
 parseOperator :: Parser Operator

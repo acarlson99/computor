@@ -38,14 +38,6 @@ parseFloat = Float <$> floating
 
 intAsFloat = fromIntegral <$> int
 
--- ~ comp = do
--- ~ comp = T.complex <$> (float <|> intAsFloat) <* char 'i'
-    -- ~ <|> do
-        -- ~ string "-i"
-        -- ~ return $ T.Complex (0,-1)
-    -- ~ <|> do
-        -- ~ char 'i'
-        -- ~ return $ T.Complex (0,1)
 comp =
     T.complex
         <$> (float <|> intAsFloat)
