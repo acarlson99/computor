@@ -4,7 +4,9 @@ TODO:
             return [(Complex (0,12), "12i12i")]
         - implement operator precidence (PEMDAS)
         - fix weird spacing
+    - parse matrix from parse tree to Matrix type
     - implement operations
+    - add tests for order of operations
 
 DONE:
     - lexer:
