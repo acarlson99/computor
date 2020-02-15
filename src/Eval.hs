@@ -11,12 +11,7 @@ import qualified Types                         as T
 
 import           Parse.Types
 
-data BaseType = Int Int
-              | Flt Float
-              | Cpx (T.Complex Float)
-              | Arr [BaseType]
-              | Mtx [BaseType]
-              deriving (Show,Eq)
+import           Eval.Math
 
 data CalcState = CalcState { getFuncs :: M.Map String ([Ident], Expr)
                            , getVars :: M.Map String BaseType }
@@ -45,22 +40,6 @@ assignFun st ident val =
 assignVar st ident val =
     CalcState (getFuncs st) (M.insert ident val (getVars st))
 
-
-
--- apply operation (Add,Mult,...) to BaseTypes erroring if unsupported
-applyOp Add (Int lhs) (Int rhs) = return $ Int $ lhs + rhs
-applyOp Sub (Int lhs) (Int rhs) = return $ Int $ lhs - rhs
-applyOp Mult (Int lhs) (Int rhs) = return $ Int $ lhs * rhs
-applyOp Div (Int lhs) (Int rhs) = return $ Int $ lhs `div` rhs
-applyOp Exp (Int lhs) (Int rhs) = return $ Int $ lhs ^ rhs
-applyOp op lhs rhs =
-    Left
-        $  "Unimplemented instruction: "
-        ++ show op
-        ++ " "
-        ++ show lhs
-        ++ " "
-        ++ show rhs
 
 evalExpr :: CalcState -> Expr -> Either String BaseType
 evalExpr _ (Primitive' n) = case n of
@@ -104,21 +83,25 @@ evalInput :: ParseTree -> CalcState -> Either String (CalcState, IO ())
 evalInput (Expr' expr) st = do
     res <- evalExpr st expr
     return (st, print res)
-evalInput (Defun (Ident fn, args, body)) st =
-    Right (assignFun st fn (args, body), print $ Defun (Ident fn, args, body))
+evalInput (Defun (Ident fn, args, body)) st = Right
+    (assignFun st fn (args, body), print $ Defun (Ident fn, args, body))
 evalInput (Assignment (Ident ident, body)) st = case evalExpr st body of
-    Right v   -> return (assignVar st ident v, print $ Assignment (Ident ident, body))
-    Left  err -> Left err
+    Right v ->
+        return (assignVar st ident v, print $ Assignment (Ident ident, body))
+    Left err -> Left err
 evalInput (Error str) st = Left $ "unrecognized value " ++ str
 evalInput expr        st = return (st, print expr)
 
 -- match parsetree and evaluate, returning new state
 eval :: [(ParseTree, String)] -> CalcState -> Either String (CalcState, IO ())
 eval [] st = return (st, return ())
-eval [(expr, x : xs)] st = Left $ "unparsed tokens: '"
+eval [(expr, x : xs)] st =
+    Left
+        $  "unparsed tokens: '"
         ++ (x : xs)
         ++ "' in expression '"
         ++ show expr
         ++ "'"
-eval (x : y : ys) st = Left $ "WAIT WTF THIS SHOULD NOT HAPPEN" ++ show (x : y : ys)
+eval (x : y : ys) st =
+    Left $ "WAIT WTF THIS SHOULD NOT HAPPEN" ++ show (x : y : ys)
 eval [(expr, "")] st = evalInput expr st
