@@ -1,10 +1,13 @@
 module Eval
     ( eval
     , emptyState
+    -- ~ , eVALEXPR
+    -- ~ , constructMtx
     )
 where
 
 import qualified Data.Map                      as M
+import           Data.Matrix
 
 import           Util
 import qualified Types                         as T
@@ -12,6 +15,14 @@ import qualified Types                         as T
 import           Parse.Types
 
 import           Eval.Math
+
+evalArray (Arr xs) = return xs
+evalArray xs       = Left $ "Invalid conversion from " ++ show xs ++ " to array"
+
+-- TODO: check matrix dimensions
+constructMtx xs = do
+    arrs <- mapM evalArray xs
+    return $ fromLists arrs
 
 data CalcState = CalcState { getFuncs :: M.Map String ([Ident], Expr)
                            , getVars :: M.Map String BaseType }
@@ -50,8 +61,11 @@ evalExpr st (Identifier (Ident ident)) =
     maybeToEither ("undefined variable: " ++ ident) $ M.lookup ident $ getVars
         st
 
-evalExpr st (Array xs) = Arr <$> traverse (evalExpr st) xs
-evalExpr st (Matrix xs) = Mtx <$> mapM (evalExpr st) xs
+evalExpr st (Array  xs) = Arr <$> traverse (evalExpr st) xs
+-- ~ evalExpr st (Matrix xs) = Mtx <$> mapM (evalExpr st) xs
+evalExpr st (Matrix xs) = do
+    mtx <- mapM (evalExpr st) xs
+    Mtx <$> constructMtx mtx
 
 evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
     -- get function args and body or error if undefined
@@ -76,6 +90,8 @@ evalExpr st (Operation (op, lhs, rhs)) = do
     lhs' <- evalExpr st lhs
     rhs' <- evalExpr st rhs
     applyOp op lhs' rhs'
+
+-- ~ eVALEXPR = evalExpr
 
 -- assignation, function definition, expression evaluation
 -- updates state with function defs, vars

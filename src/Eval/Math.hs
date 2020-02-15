@@ -4,6 +4,8 @@ module Eval.Math
     )
 where
 
+import           Data.Matrix
+
 import qualified Types                         as T
 
 import           Parse.Types
@@ -12,7 +14,7 @@ data BaseType = Int Int
               | Flt Float
               | Cpx (T.Complex Float)
               | Arr [BaseType]
-              | Mtx [BaseType]
+              | Mtx (Matrix BaseType)
               deriving (Show,Eq)
 
 showType (Int _) = "Int"
