@@ -60,7 +60,7 @@ parseExpr =
         <|> parseFuncall
         <|> (Primitive' <$> parsePrimitive)
         <|> parseMatrix
-        <|> parseArray
+        -- ~ <|> parseArray
         <|> parseIdentifier
         <|> parseParenExpr
 

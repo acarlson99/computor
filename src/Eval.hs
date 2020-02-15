@@ -18,8 +18,11 @@ import           Eval.Math
 evalArray st (Array  xs) = traverse (evalExpr st) xs
 evalArray _  n           = Left $ "Invalid type to evalArray " ++ show n
 
--- TODO: check matrix dimensions
-constructMtx xs = Right $ fromLists xs
+constructMtx xs = do
+    let lens = map length xs
+    if maximum lens == minimum lens then
+        Right $ fromLists xs
+    else Left "Matrix dimension mismatch"
 
 data CalcState = CalcState { getFuncs :: M.Map String ([Ident], Expr)
                            , getVars :: M.Map String BaseType }
