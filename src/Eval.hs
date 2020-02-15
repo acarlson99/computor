@@ -15,15 +15,6 @@ import           Parse.Types
 
 import           Eval.Math
 
-evalArray st (Array  xs) = traverse (evalExpr st) xs
-evalArray _  n           = Left $ "Invalid type to evalArray " ++ show n
-
-constructMtx xs = do
-    let lens = map length xs
-    if maximum lens == minimum lens then
-        Right $ fromLists xs
-    else Left "Matrix dimension mismatch"
-
 data CalcState = CalcState { getFuncs :: M.Map String ([Ident], Expr)
                            , getVars :: M.Map String BaseType }
 
@@ -51,6 +42,16 @@ assignFun st ident val =
 assignVar st ident val =
     CalcState (getFuncs st) (M.insert ident val (getVars st))
 
+
+
+evalArray st (Array  xs) = traverse (evalExpr st) xs
+evalArray _  n           = Left $ "Invalid type to evalArray " ++ show n
+
+constructMtx xs = do
+    let lens = map length xs
+    if maximum lens == minimum lens then
+        Right $ fromLists xs
+    else Left "Matrix dimension mismatch"
 
 evalExpr :: CalcState -> Expr -> Either String BaseType
 evalExpr _ (Primitive' n) = case n of
