@@ -13,14 +13,12 @@ import           Parse.Types
 data BaseType = Int Int
               | Flt Float
               | Cpx (T.Complex Float)
-              | Arr [BaseType]
               | Mtx (Matrix BaseType)
               deriving (Show,Eq)
 
 showType (Int _) = "Int"
 showType (Flt _) = "Float"
 showType (Cpx _) = "Complex"
-showType (Arr _) = "Array"
 showType (Mtx _) = "Matrix"
 
 invalidInstruction op lhs rhs =

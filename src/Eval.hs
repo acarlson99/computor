@@ -1,7 +1,6 @@
 module Eval
     ( eval
     , emptyState
-    -- ~ , eVALEXPR
     -- ~ , constructMtx
     )
 where
@@ -16,13 +15,11 @@ import           Parse.Types
 
 import           Eval.Math
 
-evalArray (Arr xs) = return xs
-evalArray xs       = Left $ "Invalid conversion from " ++ show xs ++ " to array"
+evalArray st (Array  xs) = traverse (evalExpr st) xs
+evalArray _  n           = Left $ "Invalid type to evalArray " ++ show n
 
 -- TODO: check matrix dimensions
-constructMtx xs = do
-    arrs <- mapM evalArray xs
-    return $ fromLists arrs
+constructMtx xs = Right $ fromLists xs
 
 data CalcState = CalcState { getFuncs :: M.Map String ([Ident], Expr)
                            , getVars :: M.Map String BaseType }
@@ -61,10 +58,12 @@ evalExpr st (Identifier (Ident ident)) =
     maybeToEither ("undefined variable: " ++ ident) $ M.lookup ident $ getVars
         st
 
-evalExpr st (Array  xs) = Arr <$> traverse (evalExpr st) xs
+evalExpr st (Array xs) = do
+    mtx <- sequence [mapM (evalExpr st) xs]
+    Mtx <$> constructMtx mtx
 -- ~ evalExpr st (Matrix xs) = Mtx <$> mapM (evalExpr st) xs
 evalExpr st (Matrix xs) = do
-    mtx <- mapM (evalExpr st) xs
+    mtx <- mapM (evalArray st) xs
     Mtx <$> constructMtx mtx
 
 evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
