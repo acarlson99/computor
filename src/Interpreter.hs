@@ -27,20 +27,22 @@ evalExpr [(Command cmd, "")] st ln = evalCmd cmd st ln
 evalExpr exp state lnum =
     -- ~ let (newst, pm) = eval exp state
     let res = eval exp state
-    in case res of
-        Right (newSt,io) -> do io
-                               interpret newSt lnum
-        Left  err        -> do putStrLn $ "ERROR: " ++ err
-                               interpret state lnum
+    in  case res of
+            Right (newSt, io) -> do
+                io
+                interpret newSt lnum
+            Left err -> do
+                putStrLn $ "ERROR: " ++ err
+                interpret state lnum
 
 -- read line, parse, evaluate, recurse
 interpret state linenum = do
-    maybeLine <- readline $ show linenum ++ " > "
+    maybeLine <- readline $ show linenum ++ "# "
     case maybeLine of
         Nothing -> return ()
         Just ln -> do
             addHistory ln
             -- ~ evalExpr (readExpr ln) state (linenum + 1)
             let exp = readExpr ln
-            print exp
+            putStrLn $ "Parsed: " ++ show exp
             evalExpr exp state (linenum + 1)
