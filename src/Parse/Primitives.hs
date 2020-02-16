@@ -26,7 +26,7 @@ parseNumber = Number <$> integer
 parseFloat' :: Parser Float
 parseFloat' = do
     lhs <- fromIntegral <$> natural
-    _ <- char '.'
+    _   <- char '.'
     rhs <- many digit
     if rhs == "" then return lhs else return $ lhs + read ("0." ++ rhs)
 

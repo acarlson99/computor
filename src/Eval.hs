@@ -49,7 +49,7 @@ evalArray :: CalcState -> Expr -> Either String [BaseType]
 evalArray st (Array  xs) = traverse (evalExpr st) xs
 evalArray _  n           = Left $ "Invalid type to evalArray " ++ show n
 
-constructMtx :: [[a]] -> Either [Char] (Matrix a)
+constructMtx :: [[a]] -> Either String (Matrix a)
 constructMtx xs = do
     let lens = map length xs
     if maximum lens == minimum lens then

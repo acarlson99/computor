@@ -46,10 +46,10 @@ quad a b c =
                   , show $ ((-b') + disc) / (2 * a')
                   ]
             | r' < 0
-            = let res = sqrt (-r')
+            = let res  = sqrt (-r')
                   div' = 2 * a'
-                  lhs = show $ (-b') / div'
-                  rhs = show $ res / div'
+                  lhs  = show $ (-b') / div'
+                  rhs  = show $ res / div'
               in  [ "Discriminant negative.  Two solutions:"
                   , lhs ++ "+" ++ rhs ++ "i"
                   , lhs ++ "-" ++ rhs ++ "i"
@@ -61,7 +61,7 @@ quad a b c =
 valOrZero :: [Term] -> Int -> Float
 valOrZero ts e = f [ t | t <- ts, termExp t == e ]
   where
-    f []       = 0
+    f []      = 0
     f (x : _) = termCoef x
 
 runQuadratic :: [Term] -> Int -> [String]
@@ -70,10 +70,10 @@ runQuadratic ts 0 =
         : if valOrZero ts 0 == 0 then ["Inf"] else ["None"]
 runQuadratic ts 1 =
     ["Degree one.  One solution:", show $ (-(valOrZero ts 0)) / valOrZero ts 1]
-runQuadratic ts 2      = quad (valOrZero ts 2) (valOrZero ts 1) (valOrZero ts 0)
+runQuadratic ts 2 = quad (valOrZero ts 2) (valOrZero ts 1) (valOrZero ts 0)
 runQuadratic _  _ = ["Degree greater than 2.  Unable to solve"]
 
-solve :: [Char] -> Either [Char] ([Char], Int, [String])
+solve :: String -> Either String (String, Int, [String])
 solve expr = do
     let (lhs, rhs) = splitOn '=' expr
         f          = map strToTerm . rgxFilter
@@ -86,7 +86,7 @@ solve expr = do
         , runQuadratic simplified $ degree simplified
         )
 
-printRes :: (Show a, Foldable t) => Either [Char] ([Char], a, t String) -> IO ()
+printRes :: (Show a, Foldable t) => Either String (String, a, t String) -> IO ()
 printRes (Left  s        ) = putStrLn $ "ERROR: " ++ s
 printRes (Right (a, b, c)) = do
     putStrLn $ "Simplified form: " ++ a

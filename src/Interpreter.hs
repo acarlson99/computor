@@ -24,7 +24,7 @@ evalCmd Dump  st ln = do
     print st
     interpret st ln
 
-evalExpr :: (Show t, Num t) => [(ParseTree, [Char])] -> CalcState -> t -> IO ()
+evalExpr :: (Show t, Num t) => [(ParseTree, String)] -> CalcState -> t -> IO ()
 evalExpr [(Command cmd, "")] st ln = evalCmd cmd st ln
 evalExpr expr state lnum =
     -- ~ let (newst, pm) = eval exp state
