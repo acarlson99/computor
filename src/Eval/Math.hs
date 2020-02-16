@@ -109,26 +109,33 @@ complexDiv (T.Complex (xa, xb)) (T.Complex (ya, yb)) = T.Complex (real, imag)
     imag = (xb * ya - xa * yb) / (ya * ya + yb * yb)
 
 applyOp :: Operator -> BaseType -> BaseType -> Either String BaseType
+
+-- mtx
 applyOp Add (Mtx lhs) (Mtx rhs)
     | (ncols lhs == ncols rhs) && (nrows lhs == nrows rhs)
     = return $ Mtx $ lhs + rhs
     | otherwise
     = Left "Unable to add differently sized matrices"
 
+applyOp MatrixMult (Mtx lhs) (Mtx rhs) = return $ Mtx $ lhs * rhs
+
+-- all operations
 applyOp Add        lhs       rhs       = return $ lhs + rhs
 applyOp Sub        lhs       rhs       = return $ lhs - rhs
 applyOp Mult       lhs       rhs       = return $ lhs * rhs
 
+-- int
 applyOp Div        (Int lhs) (Int rhs) = return $ Int $ lhs `div` rhs
 applyOp Exp        (Int lhs) (Int rhs) = return $ Int $ lhs ^ rhs
+applyOp Mod        (Int lhs) (Int rhs) = return $ Int $ lhs `mod` rhs
 
+-- flt
 applyOp Div        (Flt lhs) (Flt rhs) = return $ Flt $ lhs / rhs
 applyOp Exp        (Flt lhs) (Flt rhs) = return $ Flt $ lhs ** rhs
 applyOp op (Flt lhs) (Int rhs) = applyOp op (Flt lhs) (Flt (fromIntegral rhs))
 applyOp op (Int lhs) (Flt rhs) = applyOp op (Flt (fromIntegral lhs)) (Flt rhs)
 
-applyOp MatrixMult (Mtx lhs) (Mtx rhs) = return $ Mtx $ lhs * rhs
-
+-- cpx
 applyOp Div        (Cpx lhs) (Cpx rhs) = return $ Cpx $ lhs `complexDiv` rhs
 applyOp Exp        (Cpx lhs) rhs       = invalidInstruction Exp (Cpx lhs) rhs
 applyOp Exp        lhs       (Cpx rhs) = invalidInstruction Exp lhs (Cpx rhs)
@@ -141,12 +148,4 @@ applyOp op (Flt lhs) (Cpx rhs) =
 applyOp op (Cpx lhs) (Flt rhs) =
     applyOp op (Cpx lhs) (Cpx $ T.Complex (rhs, 0))
 
-applyOp Mod (Int lhs) (Int rhs) = return $ Int $ lhs `mod` rhs
-
-applyOp op  lhs       rhs       = invalidInstruction op lhs rhs
-
--- applyOp Div lhs rhs = invalidInstruction Div lhs rhs
--- applyOp Exp lhs rhs = invalidInstruction Exp lhs rhs
--- applyOp Mod lhs rhs = invalidInstruction Mod lhs rhs
--- applyOp MatrixMult lhs rhs = invalidInstruction MatrixMult lhs rhs
--- applyOp (Other s) lhs rhs = invalidInstruction (Other s) lhs rhs
+applyOp op lhs rhs = invalidInstruction op lhs rhs
