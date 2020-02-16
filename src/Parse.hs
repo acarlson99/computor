@@ -100,7 +100,7 @@ operand =
         <|> (Primitive' <$> parsePrimitive)
         <|> parseIdentifier
         <|> parseMatrix
-        <|> parseArray
+        -- <|> parseArray
         <|> parseParenExpr      -- handle paren for cases like (1+2)^3
 
 
@@ -190,14 +190,14 @@ parseFuncall = Funcall <$> parseFcall
 
 parseArrOnDelim delim fn =
     do
-            char '['
+            token $ char '['
             x  <- fn
-            xs <- many (char delim >> fn)
-            char ']'
+            xs <- many (token (char delim) >> fn)
+            token $ char ']'
             return $ x : xs
         <|> do
-                char '['
-                char ']'
+                token $ char '['
+                token $ char ']'
                 return []
 
 array = parseArrOnDelim ',' parseExpr
