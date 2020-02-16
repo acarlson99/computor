@@ -8,6 +8,7 @@ import           Parsing
 
 import           Parse.Types
 
+oper :: Parser String
 oper =
     string "+"
         <|> string "-"
@@ -15,9 +16,12 @@ oper =
         <|> string "*"
         <|> string "/"
         <|> string "^"
+  -- TODO: add modulo
 
+operator :: Parser String
 operator = token oper
 
+strToOperator :: String -> Operator
 strToOperator "+"  = Add
 strToOperator "-"  = Sub
 strToOperator "**" = MatrixMult

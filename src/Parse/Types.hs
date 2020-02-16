@@ -93,7 +93,7 @@ instance Num Primitive where
     fromInteger i = Number (fromInteger i)
 
 primToComplex :: Primitive -> T.Complex Float
-primToComplex (Number  p) = fromIntegral p
+primToComplex (Number  p) = T.Complex (fromIntegral p,0)
 primToComplex (Float   f) = T.Complex (f, 0)
 primToComplex (Complex c) = c
 
@@ -104,6 +104,7 @@ instance Show Operator where
     show Div        = "/"
     show Exp        = "^"
     show MatrixMult = "**"
+    show Mod        = "%"
     show (Other s)  = s
 
 instance Show Ident where

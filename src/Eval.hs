@@ -1,5 +1,6 @@
 module Eval
     ( eval
+    , CalcState (..)
     , emptyState
     -- ~ , constructMtx
     )
@@ -9,7 +10,6 @@ import qualified Data.Map                      as M
 import           Data.Matrix
 
 import           Util
-import qualified Types                         as T
 
 import           Parse.Types
 
@@ -23,30 +23,33 @@ instance Show CalcState where
         let fnc = M.toList $ getFuncs st
             var = M.toList $ getVars st
         in  foldr
-                    (\(n, (args, exp)) acc ->
-                        show (Defun (Ident n, args, exp)) ++ acc
+                    (\(n, (args, expr)) acc ->
+                        show (Defun (Ident n, args, expr)) ++ acc
                     )
                     ";"
                     fnc
                 ++ foldr
-                       (\(n, exp) acc -> show n ++ " = " ++ show exp ++ acc)
+                       (\(n, expr) acc -> show n ++ " = " ++ show expr ++ acc)
                        ";"
                        var
 
 emptyState :: CalcState
 emptyState = CalcState M.empty M.empty
 
+assignFun :: CalcState -> String -> ([Ident], Expr) -> CalcState
 assignFun st ident val =
     CalcState (M.insert ident val (getFuncs st)) (getVars st)
 
+assignVar :: CalcState -> String -> BaseType -> CalcState
 assignVar st ident val =
     CalcState (getFuncs st) (M.insert ident val (getVars st))
 
 
-
+evalArray :: CalcState -> Expr -> Either String [BaseType]
 evalArray st (Array  xs) = traverse (evalExpr st) xs
 evalArray _  n           = Left $ "Invalid type to evalArray " ++ show n
 
+constructMtx :: [[a]] -> Either [Char] (Matrix a)
 constructMtx xs = do
     let lens = map length xs
     if maximum lens == minimum lens then
@@ -55,9 +58,9 @@ constructMtx xs = do
 
 evalExpr :: CalcState -> Expr -> Either String BaseType
 evalExpr _ (Primitive' n) = case n of
-    (Number  n) -> return $ Int n
-    (Float   n) -> return $ Flt n
-    (Complex n) -> return $ Cpx n
+    (Number  n') -> return $ Int n'
+    (Float   n') -> return $ Flt n'
+    (Complex n') -> return $ Cpx n'
 evalExpr st (Identifier (Ident ident)) =
     maybeToEither ("undefined variable: " ++ ident) $ M.lookup ident $ getVars
         st
@@ -85,7 +88,7 @@ evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
             newArgs <- mapM (evalExpr st) xs
             -- evaluate body with state updated with args
             evalExpr
-                ( foldr (\(Ident ident, val) st -> assignVar st ident val) st
+                ( foldr (\(Ident ident', val) st' -> assignVar st' ident' val) st
                 $ zip args newArgs
                 )
                 body
@@ -108,19 +111,19 @@ evalInput (Assignment (Ident ident, body)) st = case evalExpr st body of
     Right v ->
         return (assignVar st ident v, print $ Assignment (Ident ident, body))
     Left err -> Left err
-evalInput (Error str) st = Left $ "unrecognized value " ++ str
+evalInput (Error str) _ = Left $ "unrecognized value " ++ str
 evalInput expr        st = return (st, print expr)
 
 -- match parsetree and evaluate, returning new state
 eval :: [(ParseTree, String)] -> CalcState -> Either String (CalcState, IO ())
 eval [] st = return (st, return ())
-eval [(expr, x : xs)] st =
+eval [(expr, x : xs)] _ =
     Left
         $  "unparsed tokens: '"
         ++ (x : xs)
         ++ "' in expression '"
         ++ show expr
         ++ "'"
-eval (x : y : ys) st =
+eval (x : y : ys) _ =
     Left $ "WAIT WTF THIS SHOULD NOT HAPPEN" ++ show (x : y : ys)
 eval [(expr, "")] st = evalInput expr st
