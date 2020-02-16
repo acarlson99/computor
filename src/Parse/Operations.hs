@@ -16,7 +16,7 @@ oper =
         <|> string "*"
         <|> string "/"
         <|> string "^"
-  -- TODO: add modulo
+        <|> string "%"
 
 operator :: Parser String
 operator = token oper
@@ -28,6 +28,7 @@ strToOperator "**" = MatrixMult
 strToOperator "*"  = Mult
 strToOperator "/"  = Div
 strToOperator "^"  = Exp
+strToOperator "%"  = Mod
 strToOperator s    = Other s
 
 parseOperator :: Parser Operator

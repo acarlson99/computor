@@ -161,7 +161,7 @@ parseOperator1 :: Parser Operator
 parseOperator1 = strToOperator <$> token operator1
 
 operator2 :: Parser String
-operator2 = string "**" <|> string "*" <|> string "/"
+operator2 = string "**" <|> string "*" <|> string "/" <|> string "%"
 
 parseOperator2 :: Parser Operator
 parseOperator2 = strToOperator <$> token operator2

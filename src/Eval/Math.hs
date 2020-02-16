@@ -1,6 +1,5 @@
 module Eval.Math
     ( BaseType(..)
-    , WBT(..)
     , applyOp
     )
 where
@@ -16,32 +15,13 @@ data BaseType = Int Int
               | Flt Float
               | Cpx (T.Complex Float)
               | Mtx (Matrix BaseType)
-              deriving (Show,Eq)
+              deriving (Eq)
 
-showType :: BaseType -> String
-showType (Int _) = "Int"
-showType (Flt _) = "Float"
-showType (Cpx _) = "Complex"
-showType (Mtx _) = "Matrix"
-
--- returns `Left error message`
-invalidInstruction :: Operator -> BaseType -> BaseType -> Either String BaseType
-invalidInstruction op lhs rhs =
-    Left
-        $  "Invalid types for operation: "
-        ++ showType lhs
-        ++ " "
-        ++ show op
-        ++ " "
-        ++ showType rhs
-
-complexDiv :: Fractional a => T.Complex a -> T.Complex a -> T.Complex a
-complexDiv (T.Complex (xa, xb)) (T.Complex (ya, yb)) = T.Complex (real, imag)
-  where
-    real = (xa * ya + xb * yb) / (ya * ya + yb * yb)
-    imag = (xb * ya - xa * yb) / (ya * ya + yb * yb)
-
-newtype WBT = W (Either String BaseType) deriving (Show)
+instance Show BaseType where
+    show (Int n) = show n
+    show (Flt n) = show n
+    show (Cpx n) = show n
+    show (Mtx n) = show n
 
 instance Num BaseType where
     -- add
@@ -105,6 +85,29 @@ instance Num BaseType where
 
     fromInteger n = Int $ fromInteger n
 
+showType :: BaseType -> String
+showType (Int _) = "Int"
+showType (Flt _) = "Float"
+showType (Cpx _) = "Complex"
+showType (Mtx _) = "Matrix"
+
+-- returns `Left error message`
+invalidInstruction :: Operator -> BaseType -> BaseType -> Either String BaseType
+invalidInstruction op lhs rhs =
+    Left
+        $  "Invalid types for operation: "
+        ++ showType lhs
+        ++ " "
+        ++ show op
+        ++ " "
+        ++ showType rhs
+
+complexDiv :: Fractional a => T.Complex a -> T.Complex a -> T.Complex a
+complexDiv (T.Complex (xa, xb)) (T.Complex (ya, yb)) = T.Complex (real, imag)
+  where
+    real = (xa * ya + xb * yb) / (ya * ya + yb * yb)
+    imag = (xb * ya - xa * yb) / (ya * ya + yb * yb)
+
 applyOp :: Operator -> BaseType -> BaseType -> Either String BaseType
 applyOp Add (Mtx lhs) (Mtx rhs)
     | (ncols lhs == ncols rhs) && (nrows lhs == nrows rhs)
@@ -138,4 +141,12 @@ applyOp op (Flt lhs) (Cpx rhs) =
 applyOp op (Cpx lhs) (Flt rhs) =
     applyOp op (Cpx lhs) (Cpx $ T.Complex (rhs, 0))
 
-applyOp op lhs rhs = invalidInstruction op lhs rhs
+applyOp Mod (Int lhs) (Int rhs) = return $ Int $ lhs `mod` rhs
+
+applyOp op  lhs       rhs       = invalidInstruction op lhs rhs
+
+-- applyOp Div lhs rhs = invalidInstruction Div lhs rhs
+-- applyOp Exp lhs rhs = invalidInstruction Exp lhs rhs
+-- applyOp Mod lhs rhs = invalidInstruction Mod lhs rhs
+-- applyOp MatrixMult lhs rhs = invalidInstruction MatrixMult lhs rhs
+-- applyOp (Other s) lhs rhs = invalidInstruction (Other s) lhs rhs
