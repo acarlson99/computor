@@ -4,8 +4,6 @@ module Types
     )
 where
 
-import           Data.Matrix
-
 newtype Complex a = Complex (a,a) deriving (Eq)
 
 instance (Floating a) => Num (Complex a) where
@@ -13,7 +11,7 @@ instance (Floating a) => Num (Complex a) where
     Complex (a, b) - Complex (c, d) = Complex (a - c, b - d)
     Complex (a, b) * Complex (c, d) = Complex (a * c - b * d, a * d + b * c)
 
-    abs (Complex (a, b)) = Complex (sqrt ((a ^ 2) + (b ^ 2)), 0)
+    abs (Complex (a, b)) = Complex (sqrt ((a ** 2) + (b ** 2)), 0)
     signum (Complex (a, b)) = Complex (signum a, signum b)
     fromInteger i = Complex (fromInteger i, 0)
 
@@ -26,4 +24,5 @@ instance (Show a, Num a, Ord a) => Show (Complex a) where
         | b < 0     = "(" ++ show a ++ show b ++ "i" ++ ")"
         | otherwise = "(" ++ show a ++ "+" ++ show b ++ "i" ++ ")"
 
+complex :: Num a => a -> Complex a
 complex n = Complex (0, n)

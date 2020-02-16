@@ -11,7 +11,8 @@ import           Parse
 import           Eval
 
 -- run builtin commands
-evalCmd Quit st ln = return ()
+evalCmd :: (Show t, Num t) => Cmd -> CalcState -> t -> IO ()
+evalCmd Quit _ _ = return ()
 evalCmd Help st ln = do
     print "HELP MSG"
     interpret st ln
@@ -23,10 +24,11 @@ evalCmd Dump  st ln = do
     print st
     interpret st ln
 
+evalExpr :: (Show t, Num t) => [(ParseTree, [Char])] -> CalcState -> t -> IO ()
 evalExpr [(Command cmd, "")] st ln = evalCmd cmd st ln
-evalExpr exp state lnum =
+evalExpr expr state lnum =
     -- ~ let (newst, pm) = eval exp state
-    let res = eval exp state
+    let res = eval expr state
     in  case res of
             Right (newSt, io) -> do
                 io
@@ -36,6 +38,7 @@ evalExpr exp state lnum =
                 interpret state lnum
 
 -- read line, parse, evaluate, recurse
+interpret :: (Show t, Num t) => CalcState -> t -> IO ()
 interpret state linenum = do
     maybeLine <- readline $ show linenum ++ "# "
     case maybeLine of
@@ -43,6 +46,6 @@ interpret state linenum = do
         Just ln -> do
             addHistory ln
             -- ~ evalExpr (readExpr ln) state (linenum + 1)
-            let exp = readExpr ln
-            putStrLn $ "Parsed: " ++ show exp
-            evalExpr exp state (linenum + 1)
+            let expr = readExpr ln
+            putStrLn $ "Parsed: " ++ show expr
+            evalExpr expr state (linenum + 1)
