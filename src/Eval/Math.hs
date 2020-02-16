@@ -91,16 +91,25 @@ showType (Flt _) = "Float"
 showType (Cpx _) = "Complex"
 showType (Mtx _) = "Matrix"
 
--- returns `Left error message`
-invalidInstruction :: Operator -> BaseType -> BaseType -> Either String BaseType
-invalidInstruction op lhs rhs =
-    Left
-        $  "Invalid types for operation: "
+invalidTypes :: Operator -> BaseType -> BaseType -> String
+invalidTypes op lhs rhs =
+    "Invalid types for operation: `"
         ++ showType lhs
         ++ " "
         ++ show op
         ++ " "
         ++ showType rhs
+        ++ "`"
+
+invalidParameters :: Operator -> BaseType -> BaseType -> String
+invalidParameters op lhs rhs =
+    "Invalid parameters for operation: `"
+        ++ show lhs
+        ++ " "
+        ++ show op
+        ++ " "
+        ++ show rhs
+        ++ "`"
 
 complexDiv :: Fractional a => T.Complex a -> T.Complex a -> T.Complex a
 complexDiv (T.Complex (xa, xb)) (T.Complex (ya, yb)) = T.Complex (real, imag)
@@ -108,9 +117,12 @@ complexDiv (T.Complex (xa, xb)) (T.Complex (ya, yb)) = T.Complex (real, imag)
     real = (xa * ya + xb * yb) / (ya * ya + yb * yb)
     imag = (xb * ya - xa * yb) / (ya * ya + yb * yb)
 
-applyOp :: Operator -> BaseType -> BaseType -> Either String BaseType
+checkZero :: Eq b => a -> b -> b -> Either a b
+checkZero msg var z | var == z  = Left msg
+                    | otherwise = return var
 
--- mtx
+applyOp :: Operator -> BaseType -> BaseType -> Either String BaseType
+-- mtx dimension check
 applyOp Add (Mtx lhs) (Mtx rhs)
     | (ncols lhs == ncols rhs) && (nrows lhs == nrows rhs)
     = return $ Mtx $ lhs + rhs
@@ -119,26 +131,50 @@ applyOp Add (Mtx lhs) (Mtx rhs)
 
 applyOp MatrixMult (Mtx lhs) (Mtx rhs) = return $ Mtx $ lhs * rhs
 
--- all operations
+-- normal operations
 applyOp Add        lhs       rhs       = return $ lhs + rhs
 applyOp Sub        lhs       rhs       = return $ lhs - rhs
 applyOp Mult       lhs       rhs       = return $ lhs * rhs
 
 -- int
-applyOp Div        (Int lhs) (Int rhs) = return $ Int $ lhs `div` rhs
-applyOp Exp        (Int lhs) (Int rhs) = return $ Int $ lhs ^ rhs
-applyOp Mod        (Int lhs) (Int rhs) = return $ Int $ lhs `mod` rhs
+applyOp Div        (Int lhs) (Int rhs) = Int . div lhs <$> checkZero
+    (invalidParameters Div (Int lhs) (Int rhs) ++ " divisor must be non-zero")
+    rhs
+    0
+applyOp Exp (Int lhs) (Int rhs)
+    | rhs < 0
+    = Left
+        $  invalidParameters Exp (Int lhs) (Int rhs)
+        ++ " exponent must be non-negative"
+    | otherwise
+    = return $ Int $ lhs ^ rhs
+applyOp Mod (Int lhs) (Int rhs) = Int . mod lhs <$> checkZero
+    (invalidParameters Mod (Int lhs) (Int rhs) ++ " divisor must be non-zero")
+    rhs
+    0
 
 -- flt
-applyOp Div        (Flt lhs) (Flt rhs) = return $ Flt $ lhs / rhs
-applyOp Exp        (Flt lhs) (Flt rhs) = return $ Flt $ lhs ** rhs
-applyOp op (Flt lhs) (Int rhs) = applyOp op (Flt lhs) (Flt (fromIntegral rhs))
-applyOp op (Int lhs) (Flt rhs) = applyOp op (Flt (fromIntegral lhs)) (Flt rhs)
+applyOp Div (Flt lhs) (Flt rhs) = Flt . (lhs /) <$> checkZero
+    (invalidParameters Div (Flt lhs) (Flt rhs) ++ " divisor must be non-zero")
+    rhs
+    0
+applyOp Exp (Flt lhs) (Flt rhs)
+    | rhs < 0
+    = Left
+        $  invalidParameters Exp (Flt lhs) (Flt rhs)
+        ++ " exponent must be non-negative"
+    | otherwise
+    = return $ Flt $ lhs ** rhs
+applyOp op  (Flt lhs) (Int rhs) = applyOp op (Flt lhs) (Flt (fromIntegral rhs))
+applyOp op  (Int lhs) (Flt rhs) = applyOp op (Flt (fromIntegral lhs)) (Flt rhs)
 
 -- cpx
-applyOp Div        (Cpx lhs) (Cpx rhs) = return $ Cpx $ lhs `complexDiv` rhs
-applyOp Exp        (Cpx lhs) rhs       = invalidInstruction Exp (Cpx lhs) rhs
-applyOp Exp        lhs       (Cpx rhs) = invalidInstruction Exp lhs (Cpx rhs)
+applyOp Div (Cpx lhs) (Cpx rhs) = Cpx . complexDiv lhs <$> checkZero
+    (invalidParameters Div (Cpx lhs) (Cpx rhs) ++ " divisor must be non-zero")
+    rhs
+    0
+applyOp Exp (Cpx lhs) rhs       = Left $ invalidTypes Exp (Cpx lhs) rhs
+applyOp Exp lhs       (Cpx rhs) = Left $ invalidTypes Exp lhs (Cpx rhs)
 applyOp op (Int lhs) (Cpx rhs) =
     applyOp op (Cpx $ T.Complex (fromIntegral lhs, 0)) (Cpx rhs)
 applyOp op (Cpx lhs) (Int rhs) =
@@ -148,4 +184,4 @@ applyOp op (Flt lhs) (Cpx rhs) =
 applyOp op (Cpx lhs) (Flt rhs) =
     applyOp op (Cpx lhs) (Cpx $ T.Complex (rhs, 0))
 
-applyOp op lhs rhs = invalidInstruction op lhs rhs
+applyOp op lhs rhs = Left $ invalidTypes op lhs rhs
