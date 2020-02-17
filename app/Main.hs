@@ -15,10 +15,9 @@ printUsage = do
     putStrLn "       help - help message"
 
 runComp :: [String] -> IO ()
-runComp ("help"     : _) = printUsage
+runComp ("help"     : _ ) = printUsage
 runComp ("poly" : x : xs) = mapM_ (printRes . solve) $ x : xs
--- runComp ("repl"     : _) = interpret emptyState 0
-runComp ("repl"     : _) = interpret emptyState (0 :: Integer)
+runComp ("repl"     : _ ) = interpret emptyState (0 :: Integer)
 runComp _                 = printUsage
 
 main :: IO ()
