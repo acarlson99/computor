@@ -45,13 +45,15 @@ instance Num BaseType where
     (Int lhs) * (Int rhs) = Int $ lhs * rhs
     (Flt lhs) * (Flt rhs) = Flt $ lhs * rhs
     (Cpx lhs) * (Cpx rhs) = Cpx $ lhs * rhs
-    (Mtx lhs) * (Mtx rhs) =
-        Mtx
-        $   fromList (ncols lhs) (nrows lhs)
-        $   getZipList
-        $   (*)
-        <$> lhs'
-        <*> rhs'
+    (Mtx lhs) * (Mtx rhs) = if (ncols lhs <= 0) || (nrows lhs <= 0)
+        then Mtx $ matrix 0 0 $ const (Int 0)
+        else
+            Mtx
+            $   fromList (ncols lhs) (nrows lhs)
+            $   getZipList
+            $   (*)
+            <$> lhs'
+            <*> rhs'
       where
         lhs' = ZipList $ toList lhs
         rhs' = ZipList $ toList rhs
@@ -124,20 +126,51 @@ checkZero msg var z | var == z  = Left msg
 applyOp :: Operator -> BaseType -> BaseType -> Either String BaseType
 -- mtx dimension check
 applyOp Add (Mtx lhs) (Mtx rhs)
-    | (ncols lhs == ncols rhs) && (nrows lhs == nrows rhs)
+    | (ncols lhs <= ncols rhs) && (nrows lhs <= nrows rhs)
     = return $ Mtx $ lhs + rhs
     | otherwise
-    = Left "Unable to add differently sized matrices"
-
-applyOp MatrixMult (Mtx lhs) (Mtx rhs) = return $ Mtx $ lhs * rhs
+    = Left
+        $  "Unable to add differently sized matrices: "
+        ++ show (ncols lhs, nrows lhs)
+        ++ " "
+        ++ show (ncols rhs, nrows rhs)
+applyOp Sub (Mtx lhs) (Mtx rhs)
+    | (ncols lhs <= ncols rhs) && (nrows lhs <= nrows rhs)
+    = return $ Mtx $ lhs - rhs
+    | otherwise
+    = Left
+        $  "Unable to subtract differently sized matrices"
+        ++ show (ncols lhs, nrows lhs)
+        ++ " "
+        ++ show (ncols rhs, nrows rhs)
+applyOp Mult (Mtx lhs) (Mtx rhs)
+    | (ncols lhs <= ncols rhs) && (nrows lhs <= nrows rhs)
+    = return $ Mtx lhs * Mtx rhs
+    | otherwise
+    = Left
+        $  "Unable to multiply differently sized matrices"
+        ++ show (ncols lhs, nrows lhs)
+        ++ " "
+        ++ show (ncols rhs, nrows rhs)
+applyOp MatrixMult (Mtx lhs) (Mtx rhs)
+    | (ncols lhs == ncols rhs)
+        && (nrows lhs == nrows rhs)
+        && (ncols lhs == nrows lhs)
+    = return $ Mtx lhs * Mtx rhs
+    | otherwise
+    = Left
+        $  "Unable to multiply unbalanced matrices"
+        ++ show (ncols lhs, nrows lhs)
+        ++ " "
+        ++ show (ncols rhs, nrows rhs)
 
 -- normal operations
-applyOp Add        lhs       rhs       = return $ lhs + rhs
-applyOp Sub        lhs       rhs       = return $ lhs - rhs
-applyOp Mult       lhs       rhs       = return $ lhs * rhs
+applyOp Add  lhs       rhs       = return $ lhs + rhs
+applyOp Sub  lhs       rhs       = return $ lhs - rhs
+applyOp Mult lhs       rhs       = return $ lhs * rhs
 
 -- int
-applyOp Div        (Int lhs) (Int rhs) = Int . div lhs <$> checkZero
+applyOp Div  (Int lhs) (Int rhs) = Int . div lhs <$> checkZero
     (invalidParameters Div (Int lhs) (Int rhs) ++ " divisor must be non-zero")
     rhs
     0

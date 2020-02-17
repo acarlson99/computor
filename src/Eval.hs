@@ -49,12 +49,13 @@ evalArray :: CalcState -> Expr -> Either String [BaseType]
 evalArray st (Array  xs) = traverse (evalExpr st) xs
 evalArray _  n           = Left $ "Invalid type to evalArray " ++ show n
 
-constructMtx :: [[a]] -> Either String (Matrix a)
+constructMtx :: [[BaseType]] -> Either String (Matrix BaseType)
+constructMtx [[]] = Right $ matrix 0 0 $ const (Int 0)
 constructMtx xs = do
     let lens = map length xs
     if maximum lens == minimum lens then
         Right $ fromLists xs
-    else Left "Matrix dimension mismatch"
+    else Left "Unable to construct matrix. Dimension mismatch"
 
 evalExpr :: CalcState -> Expr -> Either String BaseType
 evalExpr _ (Primitive' n) = case n of

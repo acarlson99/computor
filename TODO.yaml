@@ -5,7 +5,6 @@ TODO:
         - implement operator precidence (PEMDAS)
         - fix weird spacing
     - add tests for order of operations
-    - implement checks for matrix math && div/mod by 0
 
 DONE:
     - lexer:
@@ -29,3 +28,4 @@ DONE:
     - fix assignment so ```a=1 b=a a=5``` does not change b to 5
     - parse matrix from parse tree to Matrix type
     - implement operations
+    - implement checks for matrix math && div/mod by 0
