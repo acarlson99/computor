@@ -79,8 +79,8 @@ parseParenExpr = char '(' *> parseExpr <* char ')'
 assignment :: Parser (Ident, Expr)
 assignment = do
     name <- Ident <$> identifier
-    _ <- char '='
-    rhs <- parseExpr
+    _    <- char '='
+    rhs  <- parseExpr
     return (name, rhs)
 
 parseAssignment :: Parser ParseTree
@@ -90,15 +90,15 @@ defun :: Parser (Ident, [Ident], Expr)
 defun =
     do
             func <- parseIdent
-            _ <- token $ char '('
-            rhs <- parseRhs
+            _    <- token $ char '('
+            rhs  <- parseRhs
             return (func, [], rhs)
         <|> do
                 func <- parseIdent
-                _ <- token $ char '('
-                x   <- parseIdent
-                xs  <- many (char ',' *> parseIdent)
-                rhs <- parseRhs
+                _    <- token $ char '('
+                x    <- parseIdent
+                xs   <- many (char ',' *> parseIdent)
+                rhs  <- parseRhs
                 return (func, x : xs, rhs)
   where
     parseRhs = do
@@ -209,12 +209,12 @@ funcall =
     let f = parseIdent <* char '('
     in  do
                 ident' <- f
-                _ <- char ')'
+                _      <- char ')'
                 return (ident', [])
             <|> do
                     ident' <- f
-                    xs <- (:) <$> parseExpr <*> many (char ',' >> parseExpr)
-                    _ <- char ')'
+                    xs     <- (:) <$> parseExpr <*> many (char ',' >> parseExpr)
+                    _      <- char ')'
                     return (ident', xs)
 
 parseFcall :: Parser Fcall
@@ -226,10 +226,10 @@ parseFuncall = Funcall <$> parseFcall
 parseArrOnDelim :: Char -> Parser a -> Parser [a]
 parseArrOnDelim delim fn =
     do
-            _ <- token $ char '['
+            _  <- token $ char '['
             x  <- fn
             xs <- many (token (char delim) >> fn)
-            _ <- token $ char ']'
+            _  <- token $ char ']'
             return $ x : xs
         <|> do
                 _ <- token $ char '['

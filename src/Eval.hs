@@ -1,6 +1,6 @@
 module Eval
     ( eval
-    , CalcState (..)
+    , CalcState(..)
     , emptyState
     -- ~ , constructMtx
     )
@@ -46,16 +46,16 @@ assignVar st ident val =
 
 
 evalArray :: CalcState -> Expr -> Either String [BaseType]
-evalArray st (Array  xs) = traverse (evalExpr st) xs
-evalArray _  n           = Left $ "Invalid type to evalArray " ++ show n
+evalArray st (Array xs) = traverse (evalExpr st) xs
+evalArray _  n          = Left $ "Invalid type to evalArray " ++ show n
 
 constructMtx :: [[BaseType]] -> Either String (Matrix BaseType)
 constructMtx [[]] = Right $ matrix 0 0 $ const (Int 0)
-constructMtx xs = do
+constructMtx xs   = do
     let lens = map length xs
-    if maximum lens == minimum lens then
-        Right $ fromLists xs
-    else Left "Unable to construct matrix. Dimension mismatch"
+    if maximum lens == minimum lens
+        then Right $ fromLists xs
+        else Left "Unable to construct matrix. Dimension mismatch"
 
 evalExpr :: CalcState -> Expr -> Either String BaseType
 evalExpr _ (Primitive' n) = case n of
@@ -89,7 +89,7 @@ evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
             newArgs <- mapM (evalExpr st) xs
             -- evaluate body with state updated with args
             evalExpr
-                ( foldr (\(Ident ident', val) st' -> assignVar st' ident' val) st
+                (foldr (\(Ident ident', val) st' -> assignVar st' ident' val) st
                 $ zip args newArgs
                 )
                 body
@@ -112,7 +112,7 @@ evalInput (Assignment (Ident ident, body)) st = case evalExpr st body of
     Right v ->
         return (assignVar st ident v, print $ Assignment (Ident ident, body))
     Left err -> Left err
-evalInput (Error str) _ = Left $ "unrecognized value " ++ str
+evalInput (Error str) _  = Left $ "unrecognized value " ++ str
 evalInput expr        st = return (st, print expr)
 
 -- match parsetree and evaluate, returning new state

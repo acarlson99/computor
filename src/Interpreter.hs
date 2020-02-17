@@ -12,7 +12,7 @@ import           Eval
 
 -- run builtin commands
 evalCmd :: (Show t, Num t) => Cmd -> CalcState -> t -> IO ()
-evalCmd Quit _ _ = return ()
+evalCmd Quit _  _  = return ()
 evalCmd Help st ln = do
     print "HELP MSG"
     interpret st ln

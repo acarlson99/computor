@@ -5,7 +5,7 @@ import Parsing
 import Parse
 import Parse.Primitives
 
-import qualified Types as T
+import qualified Complex as C
 
 compInOut f _ (inp,outp) = let outp' = parse f inp
     in if outp == outp'
@@ -51,7 +51,7 @@ parseComplexTest =
     let inps  = [     "12i",     "3.2i",      "-2.4i",   "1.3" ]
         outps = [ Just 12  , Just 3.2  , Just (-2.4) , Nothing ]
         gentest (_,Nothing) = []
-        gentest (_,Just n)  = [(Complex $ T.Complex (0,n), "")]
+        gentest (_,Just n)  = [(Complex $ C.Complex (0,n), "")]
     in test inps outps gentest parseComplex
 
 main :: IO ()

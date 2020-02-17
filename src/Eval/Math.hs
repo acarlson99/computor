@@ -7,13 +7,13 @@ where
 import           Data.Matrix
 import           Control.Applicative
 
-import qualified Types                         as T
+import qualified Complex                       as C
 
 import           Parse.Types
 
 data BaseType = Int Int
               | Flt Float
-              | Cpx (T.Complex Float)
+              | Cpx (C.Complex Float)
               | Mtx (Matrix BaseType)
               deriving (Eq)
 
@@ -33,10 +33,10 @@ instance Num BaseType where
     (Flt lhs) + (Int rhs) = Flt lhs + Flt (fromIntegral rhs)
     (Int lhs) + (Flt rhs) = Flt (fromIntegral lhs) + Flt rhs
 
-    (Int lhs) + (Cpx rhs) = (Cpx $ T.Complex (fromIntegral lhs, 0)) + Cpx rhs
-    (Cpx lhs) + (Int rhs) = Cpx lhs + (Cpx $ T.Complex (fromIntegral rhs, 0))
-    (Flt lhs) + (Cpx rhs) = (Cpx $ T.Complex (lhs, 0)) + Cpx rhs
-    (Cpx lhs) + (Flt rhs) = Cpx lhs + (Cpx $ T.Complex (rhs, 0))
+    (Int lhs) + (Cpx rhs) = (Cpx $ C.Complex (fromIntegral lhs, 0)) + Cpx rhs
+    (Cpx lhs) + (Int rhs) = Cpx lhs + (Cpx $ C.Complex (fromIntegral rhs, 0))
+    (Flt lhs) + (Cpx rhs) = (Cpx $ C.Complex (lhs, 0)) + Cpx rhs
+    (Cpx lhs) + (Flt rhs) = Cpx lhs + (Cpx $ C.Complex (rhs, 0))
 
     (Mtx lhs) + rhs = Mtx $ lhs + matrix (nrows lhs) (ncols lhs) (const rhs)
     lhs       + (Mtx rhs) = Mtx rhs + lhs
@@ -61,10 +61,10 @@ instance Num BaseType where
     (Flt lhs) * (Int rhs) = Flt lhs * Flt (fromIntegral rhs)
     (Int lhs) * (Flt rhs) = Flt (fromIntegral lhs) * Flt rhs
 
-    (Int lhs) * (Cpx rhs) = (Cpx $ T.Complex (fromIntegral lhs, 0)) * Cpx rhs
-    (Cpx lhs) * (Int rhs) = Cpx lhs * (Cpx $ T.Complex (fromIntegral rhs, 0))
-    (Flt lhs) * (Cpx rhs) = (Cpx $ T.Complex (lhs, 0)) * Cpx rhs
-    (Cpx lhs) * (Flt rhs) = Cpx lhs * (Cpx $ T.Complex (rhs, 0))
+    (Int lhs) * (Cpx rhs) = (Cpx $ C.Complex (fromIntegral lhs, 0)) * Cpx rhs
+    (Cpx lhs) * (Int rhs) = Cpx lhs * (Cpx $ C.Complex (fromIntegral rhs, 0))
+    (Flt lhs) * (Cpx rhs) = (Cpx $ C.Complex (lhs, 0)) * Cpx rhs
+    (Cpx lhs) * (Flt rhs) = Cpx lhs * (Cpx $ C.Complex (rhs, 0))
 
     (Mtx lhs) * rhs       = Mtx $ fmap (* rhs) lhs
     lhs       * (Mtx rhs) = Mtx rhs * lhs
@@ -113,8 +113,8 @@ invalidParameters op lhs rhs =
         ++ show rhs
         ++ "`"
 
-complexDiv :: Fractional a => T.Complex a -> T.Complex a -> T.Complex a
-complexDiv (T.Complex (xa, xb)) (T.Complex (ya, yb)) = T.Complex (real, imag)
+complexDiv :: Fractional a => C.Complex a -> C.Complex a -> C.Complex a
+complexDiv (C.Complex (xa, xb)) (C.Complex (ya, yb)) = C.Complex (real, imag)
   where
     real = (xa * ya + xb * yb) / (ya * ya + yb * yb)
     imag = (xb * ya - xa * yb) / (ya * ya + yb * yb)
@@ -209,12 +209,12 @@ applyOp Div (Cpx lhs) (Cpx rhs) = Cpx . complexDiv lhs <$> checkZero
 applyOp Exp (Cpx lhs) rhs       = Left $ invalidTypes Exp (Cpx lhs) rhs
 applyOp Exp lhs       (Cpx rhs) = Left $ invalidTypes Exp lhs (Cpx rhs)
 applyOp op (Int lhs) (Cpx rhs) =
-    applyOp op (Cpx $ T.Complex (fromIntegral lhs, 0)) (Cpx rhs)
+    applyOp op (Cpx $ C.Complex (fromIntegral lhs, 0)) (Cpx rhs)
 applyOp op (Cpx lhs) (Int rhs) =
-    applyOp op (Cpx lhs) (Cpx $ T.Complex (fromIntegral rhs, 0))
+    applyOp op (Cpx lhs) (Cpx $ C.Complex (fromIntegral rhs, 0))
 applyOp op (Flt lhs) (Cpx rhs) =
-    applyOp op (Cpx $ T.Complex (lhs, 0)) (Cpx rhs)
+    applyOp op (Cpx $ C.Complex (lhs, 0)) (Cpx rhs)
 applyOp op (Cpx lhs) (Flt rhs) =
-    applyOp op (Cpx lhs) (Cpx $ T.Complex (rhs, 0))
+    applyOp op (Cpx lhs) (Cpx $ C.Complex (rhs, 0))
 
 applyOp op lhs rhs = Left $ invalidTypes op lhs rhs

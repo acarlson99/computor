@@ -17,7 +17,7 @@ import           Data.Functor
 
 import           Parsing
 
-import qualified Types                         as T
+import qualified Complex                       as C
 import           Parse.Types
 
 parseNumber :: Parser Primitive
@@ -42,15 +42,15 @@ parseFloat = Float <$> floating
 intAsFloat :: Parser Float
 intAsFloat = fromIntegral <$> int
 
-comp :: Parser (T.Complex Float)
+comp :: Parser (C.Complex Float)
 comp =
-    T.complex
+    C.complex
         <$> (float <|> intAsFloat)
         <*  char 'i'
-        <|> (string "-i" $> T.Complex (0, -1))
-        <|> (char 'i' $> T.Complex (0, 1))
+        <|> (string "-i" $> C.Complex (0, -1))
+        <|> (char 'i' $> C.Complex (0, 1))
 
-complex :: Parser (T.Complex Float)
+complex :: Parser (C.Complex Float)
 complex = token comp
 
 parseComplex :: Parser Primitive

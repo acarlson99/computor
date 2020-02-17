@@ -3,7 +3,7 @@ module Parse.Types
     )
 where
 
-import qualified Types                         as T
+import qualified Complex                       as C
 import           Util
 
 data Cmd = Quit
@@ -30,7 +30,7 @@ data Operator = Add
 
 data Primitive = Number Int
                | Float Float
-               | Complex (T.Complex Float)
+               | Complex (C.Complex Float)
                deriving (Eq)
                -- ~ deriving (Eq,Show)
 
@@ -61,7 +61,7 @@ instance Num Primitive where
     Number  n + Float   f  = Float $ fromIntegral n + f
     Complex c + Complex c' = Complex $ c + c'
     Complex c + Number  n  = Complex $ fromIntegral n + c
-    Complex c + Float   f  = Complex $ c + T.Complex (f, 0)
+    Complex c + Float   f  = Complex $ c + C.Complex (f, 0)
     b         + a          = a + b
 
     Number  n - Number  n' = Number $ n - n'
@@ -71,15 +71,15 @@ instance Num Primitive where
     Complex c - Complex c' = Complex $ c - c'
     Complex c - Number  n  = Complex $ c - fromIntegral n
     Number  n - Complex c  = Complex $ fromIntegral n - c
-    Complex c - Float   f  = Complex $ c - T.Complex (f, 0)
-    Float   f - Complex c  = Complex $ T.Complex (f, 0) - c
+    Complex c - Float   f  = Complex $ c - C.Complex (f, 0)
+    Float   f - Complex c  = Complex $ C.Complex (f, 0) - c
 
     Number  n * Number  n' = Number $ n * n'
     Float   f * Float   f' = Float $ f * f'
     Number  n * Float   f  = Float $ fromIntegral n * f
     Complex c * Complex c' = Complex $ c * c'
     Complex c * Number  n  = Complex $ fromIntegral n * c
-    Complex c * Float   f  = Complex $ c * T.Complex (f, 0)
+    Complex c * Float   f  = Complex $ c * C.Complex (f, 0)
     b         * a          = a * b
 
     abs (Number  a) = Number $ abs a
@@ -92,9 +92,9 @@ instance Num Primitive where
 
     fromInteger i = Number (fromInteger i)
 
-primToComplex :: Primitive -> T.Complex Float
-primToComplex (Number  p) = T.Complex (fromIntegral p, 0)
-primToComplex (Float   f) = T.Complex (f, 0)
+primToComplex :: Primitive -> C.Complex Float
+primToComplex (Number  p) = C.Complex (fromIntegral p, 0)
+primToComplex (Float   f) = C.Complex (f, 0)
 primToComplex (Complex c) = c
 
 instance Show Operator where
