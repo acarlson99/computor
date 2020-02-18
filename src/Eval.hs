@@ -112,7 +112,7 @@ evalInput (Defun (Ident fn, args, body)) st = Right
     (assignFun st fn (args, body), print $ Defun (Ident fn, args, body))
 evalInput (Assignment (Ident ident, body)) st = case evalExpr st body of
     Right v ->
-        return (assignVar st ident v, print $ Assignment (Ident ident, body))
+        return (assignVar st ident v, putStrLn $ ident ++ " = " ++ show v)
     Left err -> Left err
 evalInput (Error str) _  = Left $ "unrecognized value " ++ str
 evalInput expr        st = return (st, print expr)
