@@ -1,5 +1,5 @@
 name:                computor
-version:             0.1.0.0
+version:             0.2.0.0
 github:              "acarlson99/computor"
 license:             BSD3
 author:              "acarlson"
@@ -20,20 +20,24 @@ description:         Please see the README on GitHub at <https://github.com/acar
 
 dependencies:
 - base >= 4.7 && < 5
-- regex-posix
-- containers
-- readline
 
 library:
   source-dirs:
     - src
     - lib
+  ghc-options:
+  - -Wall
+  dependencies:
+  - regex-posix
+  - containers
+  - readline
 
 executables:
   computor-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
+    - -Wall
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N

@@ -44,8 +44,7 @@ instance Show a => Show (Matrix a) where
     show = prettyMatrix
 
 matrix :: Int -> Int -> ((Int, Int) -> a) -> Matrix a
-matrix nr nc f = do
-    fromList nr nc $ (\a b -> f (a, b)) <$> [1 .. nr] <*> [1 .. nc]
+matrix nr nc f = fromList nr nc $ (curry f) <$> [1 .. nr] <*> [1 .. nc]
 
 fromlst :: Int -> Int -> [a] -> [[a]]
 fromlst 0  _  _  = []
