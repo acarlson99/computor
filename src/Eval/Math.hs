@@ -152,9 +152,10 @@ applyOp Mult (Mtx lhs) (Mtx rhs)
         ++ " "
         ++ show (ncols rhs, nrows rhs)
 applyOp MatrixMult (Mtx lhs) (Mtx rhs)
-    | (ncols lhs == ncols rhs)
-        && (nrows lhs == nrows rhs)
-        && (ncols lhs == nrows lhs)
+    | ncols lhs == nrows rhs
+    -- ~ | (ncols lhs == ncols rhs)
+        -- ~ && (nrows lhs == nrows rhs)
+        -- ~ && (ncols lhs == nrows lhs)
     = return $ Mtx $ lhs * rhs
     | otherwise
     = Left
