@@ -10,11 +10,19 @@ import qualified Poly.Solve                    as P
 import           Parse
 import           Eval
 
+helpMsg :: String
+helpMsg = "Commands:\n\
+    \\t@help    - help msg\n\
+    \\t@quit    - quit\n\
+    \\t@dump    - show all defined variables/functions\n\
+    \\t@reset   - clear all definitions\n\
+    \\t@poly    - evaluate polynomial"
+
 -- run builtin commands
 evalCmd :: (Show t, Num t) => Cmd -> CalcState -> t -> IO ()
 evalCmd Quit _  _  = return ()
 evalCmd Help st ln = do
-    print "HELP MSG"
+    putStrLn helpMsg
     interpret st ln
 evalCmd (EvalPoly xs) st ln = do
     P.printRes $ P.solve xs
@@ -47,5 +55,5 @@ interpret state linenum = do
             addHistory ln
             -- ~ evalExpr (readExpr ln) state (linenum + 1)
             let expr = readExpr ln
-            putStrLn $ "Parsed: " ++ show expr
+            -- ~ putStrLn $ "Parsed: " ++ show expr
             evalExpr expr state (linenum + 1)

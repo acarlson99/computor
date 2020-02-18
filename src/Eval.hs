@@ -24,13 +24,13 @@ instance Show CalcState where
             var = M.toList $ getVars st
         in  foldr
                     (\(n, (args, expr)) acc ->
-                        show (Defun (Ident n, args, expr)) ++ acc
+                        show (Defun (Ident n, args, expr)) ++ '\n':acc
                     )
-                    ";"
+                    ""
                     fnc
                 ++ foldr
-                       (\(n, expr) acc -> show n ++ " = " ++ show expr ++ acc)
-                       ";"
+                       (\(n, expr) acc -> n ++ " = " ++ show expr ++ '\n':acc)
+                       ""
                        var
 
 emptyState :: CalcState
@@ -96,7 +96,9 @@ evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
 evalExpr st (Operation (op, lhs, rhs)) = do
     lhs' <- evalExpr st lhs
     rhs' <- evalExpr st rhs
-    applyOp op lhs' rhs'
+    case applyOp op lhs' rhs' of
+        Right v -> return v
+        Left err -> Left $ err ++ " in expression `" ++ show lhs' ++ show op ++ show rhs' ++ "`"
 
 -- ~ eVALEXPR = evalExpr
 
