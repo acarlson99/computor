@@ -11,7 +11,8 @@ import           Parse
 import           Eval
 
 helpMsg :: String
-helpMsg = "Commands:\n\
+helpMsg =
+    "Commands:\n\
     \\t@help    - help msg\n\
     \\t@quit    - quit\n\
     \\t@dump    - show all defined variables/functions\n\
@@ -35,7 +36,6 @@ evalCmd Dump  st ln = do
 evalExpr :: (Show t, Num t) => [(ParseTree, String)] -> CalcState -> t -> IO ()
 evalExpr [(Command cmd, "")] st ln = evalCmd cmd st ln
 evalExpr expr state lnum =
-    -- ~ let (newst, pm) = eval exp state
     let res = eval expr state
     in  case res of
             Right (newSt, io) -> do
@@ -53,7 +53,7 @@ interpret state linenum = do
         Nothing -> return ()
         Just ln -> do
             addHistory ln
-            -- ~ evalExpr (readExpr ln) state (linenum + 1)
-            let expr = readExpr ln
-            -- ~ putStrLn $ "Parsed: " ++ show expr
-            evalExpr expr state (linenum + 1)
+            evalExpr (readExpr ln) state (linenum + 1)
+            -- let expr = readExpr ln
+            -- putStrLn $ "Parsed: " ++ show expr
+            -- evalExpr expr state (linenum + 1)

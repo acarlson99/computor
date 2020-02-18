@@ -44,18 +44,6 @@ instance Num BaseType where
     (Flt lhs) * (Flt rhs) = Flt $ lhs * rhs
     (Cpx lhs) * (Cpx rhs) = Cpx $ lhs * rhs
     (Mtx lhs) * (Mtx rhs) = Mtx $ elementwise (*) lhs rhs
-    -- ~ (Mtx lhs) * (Mtx rhs) = if (ncols lhs <= 0) || (nrows lhs <= 0)
-        -- ~ then Mtx $ matrix 0 0 $ const (Int 0)
-        -- ~ else
-            -- ~ Mtx
-            -- ~ $   fromList (ncols lhs) (nrows lhs)
-            -- ~ $   getZipList
-            -- ~ $   (*)
-            -- ~ <$> lhs'
-            -- ~ <*> rhs'
-      -- ~ where
-        -- ~ lhs' = ZipList $ toList lhs
-        -- ~ rhs' = ZipList $ toList rhs
 
     (Flt lhs) * (Int rhs) = Flt lhs * Flt (fromIntegral rhs)
     (Int lhs) * (Flt rhs) = Flt (fromIntegral lhs) * Flt rhs
@@ -153,9 +141,6 @@ applyOp Mult (Mtx lhs) (Mtx rhs)
         ++ show (ncols rhs, nrows rhs)
 applyOp MatrixMult (Mtx lhs) (Mtx rhs)
     | ncols lhs == nrows rhs
-    -- ~ | (ncols lhs == ncols rhs)
-        -- ~ && (nrows lhs == nrows rhs)
-        -- ~ && (ncols lhs == nrows lhs)
     = return $ Mtx $ lhs * rhs
     | otherwise
     = Left

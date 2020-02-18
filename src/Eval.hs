@@ -2,7 +2,6 @@ module Eval
     ( eval
     , CalcState
     , emptyState
-    -- ~ , constructMtx
     )
 where
 
@@ -24,12 +23,12 @@ instance Show CalcState where
             var = M.toList $ getVars st
         in  foldr
                     (\(n, (args, expr)) acc ->
-                        show (Defun (Ident n, args, expr)) ++ '\n':acc
+                        show (Defun (Ident n, args, expr)) ++ '\n' : acc
                     )
                     ""
                     fnc
                 ++ foldr
-                       (\(n, expr) acc -> n ++ " = " ++ show expr ++ '\n':acc)
+                       (\(n, expr) acc -> n ++ " = " ++ show expr ++ '\n' : acc)
                        ""
                        var
 
@@ -69,7 +68,6 @@ evalExpr st (Identifier (Ident ident)) =
 evalExpr st (Array xs) = do
     mtx <- sequence [mapM (evalExpr st) xs]
     Mtx <$> constructMtx mtx
--- ~ evalExpr st (Matrix xs) = Mtx <$> mapM (evalExpr st) xs
 evalExpr st (Matrix xs) = do
     mtx <- mapM (evalArray st) xs
     Mtx <$> constructMtx mtx
@@ -98,9 +96,16 @@ evalExpr st (Operation (op, lhs, rhs)) = do
     rhs' <- evalExpr st rhs
     case applyOp op lhs' rhs' of
         Right v -> return v
-        Left err -> Left $ err ++ " in expression `" ++ show lhs' ++ ' ' : show op ++ ' ' : show rhs' ++ "`"
-
--- ~ eVALEXPR = evalExpr
+        Left err ->
+            Left
+                $  err
+                ++ " in expression `"
+                ++ show lhs'
+                ++ ' '
+                :  show op
+                ++ ' '
+                :  show rhs'
+                ++ "`"
 
 -- assignation, function definition, expression evaluation
 -- updates state with function defs, vars

@@ -1,11 +1,7 @@
--- ~ module Parse
-    -- ~ ( readExpr
-    -- ~ , parseArray
-    -- ~ , parseMatrix
-    -- ~ ) where
-
 module Parse
-    ( module Parse
+    ( readExpr
+    , parseArray
+    , parseMatrix
     , module Parse.Types
     )
 where
@@ -69,7 +65,6 @@ parseExpr =
         <|> parseFuncall
         <|> (Primitive' <$> parsePrimitive)
         <|> parseMatrix
-        -- ~ <|> parseArray
         <|> parseIdentifier
         <|> parseParenExpr
 
@@ -115,34 +110,17 @@ operand =
         <|> (Primitive' <$> parsePrimitive)
         <|> parseIdentifier
         <|> parseMatrix
-        -- <|> parseArray
         <|> parseParenExpr      -- handle paren for cases like (1+2)^3
 
 
 {-
 TODO: add operator precedence
 
--       -- unary minus
-()      -- paren/subexpression
-^       -- exponent
-*/      -- multiplication/division
-+-      -- addition/subtraction
+^           -- exponent
+** * / %    -- mtx-mult/multiplication/division/mod
++ -         -- addition/subtraction
 
-=       -- assignment
 -}
-
--- TODO: implement operator precidence
--- ~ operation = do
-    -- ~ lhs <- operand
-    -- ~ op  <- parseOperator
-    -- ~ rhs <- parseExpr
-    -- ~ return (op, lhs, rhs)
-
-        -- Commented out because it caused weird bugs
-        -- ~ <|> do          -- 4x = 4*x
-                -- ~ lhs <- operand
-                -- ~ rhs <- parseIdentifier
-                -- ~ return (Mult, lhs, rhs)
 
 parseOp' :: Monad m => m Expr -> m Operator -> m Expr -> m Expr
 parseOp' lhsf opf rhsf = do
@@ -187,20 +165,6 @@ operation2 =
 operation3 :: Parser Expr
 operation3 = parseOp' operand parseOperator3 (operation3 <|> operand)
 
--- ~ operation2 = do
-    -- ~ lhs <- ((Operation <$> operation3) <|> operand)
-    -- ~ op <- strToOperator <$> token (string "*" <|> string "/")
-    -- ~ rhs <- parseExpr
-    -- ~ return (op, lhs, rhs)
-    -- ~ <|> operation3
-
--- ~ operation3 = do
-    -- ~ lhs <- operand
-    -- ~ op <- strToOperator <$> token (string "+" <|> string "-")
-    -- ~ rhs <- parseExpr
-    -- ~ return (op, lhs, rhs)
-
--- ~ parseOperation = Operation <$> token operation
 parseOperation :: Parser Expr
 parseOperation = token operation
 

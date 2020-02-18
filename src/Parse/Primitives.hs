@@ -1,15 +1,9 @@
--- ~ module Parse.Primitives
-    -- ~ ( parseNumber
-    -- ~ , parseFloat
-    -- ~ , parseComplex
-    -- ~ , parseIdentifier
-
-    -- ~ , parsePrimitive
-    -- ~ , ParseTree (..)
-    -- ~ ) where
-
 module Parse.Primitives
-    ( module Parse.Primitives
+    ( parseNumber
+    , parseFloat
+    , parseComplex
+    , parsePrimitive
+    , ParseTree(..)
     )
 where
 
@@ -57,13 +51,8 @@ parseComplex :: Parser Primitive
 parseComplex = Complex <$> token complex
 
 parsePrimitive :: Parser Primitive
-parsePrimitive =
-    parseComplex
-    -- ~ <|> parseIdentifier
-        <|> parseFloat
-        <|> parseNumber
-        <|> do
-                _ <- char '('
-                x <- parsePrimitive
-                _ <- char ')'
-                return x
+parsePrimitive = parseComplex <|> parseFloat <|> parseNumber <|> do
+    _ <- char '('
+    x <- parsePrimitive
+    _ <- char ')'
+    return x

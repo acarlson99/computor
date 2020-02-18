@@ -26,13 +26,11 @@ data Operator = Add
                | MatrixMult
                | Other String
                deriving (Eq)
-               -- ~ deriving (Eq,Show)
 
 data Primitive = Number Int
                | Float Float
                | Complex (C.Complex Float)
                deriving (Eq)
-               -- ~ deriving (Eq,Show)
 
 data Expr = Primitive' Primitive
           | Identifier Ident
@@ -40,20 +38,18 @@ data Expr = Primitive' Primitive
           | Array [Expr]
           | Matrix [Expr]
 
-          | Funcall Fcall
-          | Operation (Operator, Expr, Expr)   -- 1 + 2 === + 1 2
+          | Funcall Fcall                       -- f(a,b)
+          | Operation (Operator, Expr, Expr)    -- 1 + 2 === + 1 2
           deriving (Eq)
-               -- ~ deriving (Eq,Show)
 
 data ParseTree = Expr' Expr
                | Assignment (Ident, Expr)
-               | Defun (Ident, [Ident], Expr) -- (funcall, expr)
+               | Defun (Ident, [Ident], Expr)   -- (funcall, expr)
 
                | Command Cmd
 
                | Error String
                deriving (Eq)
-               -- ~ deriving (Eq,Show)
 
 instance Num Primitive where
     Number  n + Number  n' = Number $ n + n'
@@ -137,14 +133,5 @@ instance Show ParseTree where
     show (Defun      (f, [], rhs)) = show f ++ "( ) = " ++ show rhs
     show (Defun (f, x : xs, rhs)) =
         show f ++ "( " ++ show x ++ showSepList " , " xs ++ " ) = " ++ show rhs
-    -- ~ show (Defun (f,xs,rhs)) = show (Fcall (f, map (Primitive' . Identifier) xs)) ++ show rhs
     show (Command cmd) = show cmd
     show (Error   err) = "UNKNOWN VALUES: " ++ err
-
--- ~ exprMap f (Primitive' p) = f p
--- ~ exprMap f (Array xs) = Array $ fmap (exprMap f) xs
--- ~ exprMap f (Matrix xs) = Matrix $ fmap (exprMap f) xs
--- ~ exprMap f (Funcall (Fcall (fn,xs))) = Funcall $ Fcall (fn, ys)
-                                    -- ~ where ys = map (exprMap f) xs
--- ~ exprMap f (Operation (op,lhs,rhs)) = Operation (op, exprMap f lhs
-                                                  -- ~ , exprMap f rhs)

@@ -4,7 +4,6 @@ TODO:
             return [(Complex (0,12), "12i12i")]
         - fix weird spacing
     - add tests for order of operations
-    - implement matrix module
 
 DONE:
     - lexer:
@@ -30,3 +29,4 @@ DONE:
     - parse matrix from parse tree to Matrix type
     - implement operations
     - implement checks for matrix math && div/mod by 0
+    - implement matrix module

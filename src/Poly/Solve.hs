@@ -75,11 +75,11 @@ runQuadratic _  _ = ["Degree greater than 2.  Unable to solve"]
 
 solve :: String -> Either String (String, Int, [String])
 solve expr = do
-    let (lhs, rhs) = splitOn '=' expr
-        f          = map strToTerm . rgxFilter
+    let (lhs, rhs) = splitOn '=' expr           -- split into lhs,rhs
+        f          = map strToTerm . rgxFilter  -- make into list of terms
         lhs'       = foldl (\x y -> negateTerm y : x) (f lhs) (f rhs)
     simplified <- maybeToEither ("Unable to simplify expression: " ++ expr)
-        $ simplifyExpr lhs'
+        $ simplifyExpr lhs'     -- move rhs to lhs
     return
         ( termsToStr simplified ++ " = 0"
         , degree simplified
