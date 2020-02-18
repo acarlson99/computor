@@ -77,9 +77,10 @@ solve :: String -> Either String (String, Int, [String])
 solve expr = do
     let (lhs, rhs) = splitOn '=' expr           -- split into lhs,rhs
         f          = map strToTerm . rgxFilter  -- make into list of terms
+        -- move rhs to lhs
         lhs'       = foldl (\x y -> negateTerm y : x) (f lhs) (f rhs)
     simplified <- maybeToEither ("Unable to simplify expression: " ++ expr)
-        $ simplifyExpr lhs'     -- move rhs to lhs
+        $ simplifyExpr lhs'     -- add like terms
     return
         ( termsToStr simplified ++ " = 0"
         , degree simplified

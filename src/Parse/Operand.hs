@@ -1,4 +1,4 @@
-module Parse.Operations
+module Parse.Operand
     ( parseOperator
     , strToOperator
     )

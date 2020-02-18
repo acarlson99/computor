@@ -11,7 +11,7 @@ import           Data.Functor
 import           Parsing
 
 import           Parse.Primitives
-import           Parse.Operations
+import           Parse.Operand
 import           Parse.Types
 
 readExpr :: String -> [(ParseTree, String)]
