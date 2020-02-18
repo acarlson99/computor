@@ -92,4 +92,4 @@ instance Num a => Num (Matrix a) where
 -- show
 
 instance Show a => Show (Matrix a) where
-    show m = "[" ++ (intercalate "; " $ map show $ getBody m) ++ "]"
+    show m = "[" ++ intercalate "; " (map show $ getBody m) ++ "]"
