@@ -4,10 +4,8 @@ module Eval.Math
     )
 where
 
-import           Data.Matrix
-import           Control.Applicative
-
 import qualified Complex                       as C
+import           Matrix
 
 import           Parse.Types
 
@@ -45,18 +43,19 @@ instance Num BaseType where
     (Int lhs) * (Int rhs) = Int $ lhs * rhs
     (Flt lhs) * (Flt rhs) = Flt $ lhs * rhs
     (Cpx lhs) * (Cpx rhs) = Cpx $ lhs * rhs
-    (Mtx lhs) * (Mtx rhs) = if (ncols lhs <= 0) || (nrows lhs <= 0)
-        then Mtx $ matrix 0 0 $ const (Int 0)
-        else
-            Mtx
-            $   fromList (ncols lhs) (nrows lhs)
-            $   getZipList
-            $   (*)
-            <$> lhs'
-            <*> rhs'
-      where
-        lhs' = ZipList $ toList lhs
-        rhs' = ZipList $ toList rhs
+    (Mtx lhs) * (Mtx rhs) = Mtx $ elementwise (*) lhs rhs
+    -- ~ (Mtx lhs) * (Mtx rhs) = if (ncols lhs <= 0) || (nrows lhs <= 0)
+        -- ~ then Mtx $ matrix 0 0 $ const (Int 0)
+        -- ~ else
+            -- ~ Mtx
+            -- ~ $   fromList (ncols lhs) (nrows lhs)
+            -- ~ $   getZipList
+            -- ~ $   (*)
+            -- ~ <$> lhs'
+            -- ~ <*> rhs'
+      -- ~ where
+        -- ~ lhs' = ZipList $ toList lhs
+        -- ~ rhs' = ZipList $ toList rhs
 
     (Flt lhs) * (Int rhs) = Flt lhs * Flt (fromIntegral rhs)
     (Int lhs) * (Flt rhs) = Flt (fromIntegral lhs) * Flt rhs
@@ -156,7 +155,7 @@ applyOp MatrixMult (Mtx lhs) (Mtx rhs)
     | (ncols lhs == ncols rhs)
         && (nrows lhs == nrows rhs)
         && (ncols lhs == nrows lhs)
-    = return $ Mtx lhs * Mtx rhs
+    = return $ Mtx $ lhs * rhs
     | otherwise
     = Left
         $  "Unable to multiply unbalanced matrices"

@@ -21,7 +21,6 @@ description:         Please see the README on GitHub at <https://github.com/acar
 dependencies:
 - base >= 4.7 && < 5
 - regex-posix
-- matrix
 - containers
 - readline
 

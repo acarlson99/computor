@@ -1,15 +1,15 @@
 module Eval
     ( eval
-    , CalcState(..)
+    , CalcState
     , emptyState
     -- ~ , constructMtx
     )
 where
 
 import qualified Data.Map                      as M
-import           Data.Matrix
 
 import           Util
+import           Matrix
 
 import           Parse.Types
 
