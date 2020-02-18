@@ -57,14 +57,17 @@ constructMtx xs   = do
         else Left "Unable to construct matrix. Dimension mismatch"
 
 evalExpr :: CalcState -> Expr -> Either String BaseType
+-- primitives evaluate to themselves
 evalExpr _ (Primitive' n) = case n of
     (Number  n') -> return $ Int n'
     (Float   n') -> return $ Flt n'
     (Complex n') -> return $ Cpx n'
+-- identifiers query table of vars
 evalExpr st (Identifier (Ident ident)) =
     maybeToEither ("undefined variable: " ++ ident) $ M.lookup ident $ getVars
         st
 
+-- arrays/matrixs construct matrices
 evalExpr st (Array xs) = do
     mtx <- sequence [mapM (evalExpr st) xs]
     Mtx <$> constructMtx mtx
@@ -91,6 +94,7 @@ evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
                 $ zip args newArgs
                 )
                 body
+-- Operation (+, Int 7, Int 4) = Int 11
 evalExpr st (Operation (op, lhs, rhs)) = do
     lhs' <- evalExpr st lhs
     rhs' <- evalExpr st rhs
@@ -122,7 +126,7 @@ evalInput (Assignment (Ident ident, body)) st = case evalExpr st body of
 evalInput (Error str) _  = Left $ "unrecognized value " ++ str
 evalInput expr        st = return (st, print expr)
 
--- match parsetree and evaluate, returning new state
+-- match parsetree and evaluate, returning new state && IO
 eval :: [(ParseTree, String)] -> CalcState -> Either String (CalcState, IO ())
 eval [] st = return (st, return ())
 eval [(expr, x : xs)] _ =

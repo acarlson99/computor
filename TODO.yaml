@@ -4,6 +4,8 @@ TODO:
             return [(Complex (0,12), "12i12i")]
         - fix weird spacing
     - add tests for order of operations
+    - add builtins (sin,cos,map,etc.)
+    - add eval/preload file evaluation
 
 DONE:
     - lexer:

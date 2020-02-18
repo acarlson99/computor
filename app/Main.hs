@@ -4,7 +4,6 @@ import           System.Environment
 
 import           Poly.Solve
 import           Interpreter
-import           Eval
 
 printUsage :: IO ()
 printUsage = do
@@ -17,7 +16,7 @@ printUsage = do
 runComp :: [String] -> IO ()
 runComp ("help"     : _ ) = printUsage
 runComp ("poly" : x : xs) = mapM_ (printRes . solve) $ x : xs
-runComp ("repl"     : _ ) = interpret emptyState (0 :: Integer)
+runComp ("repl"     : xs) = interpret xs
 runComp _                 = printUsage
 
 main :: IO ()
