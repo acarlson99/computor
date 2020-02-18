@@ -125,7 +125,7 @@ checkZero msg var z | var == z  = Left msg
 applyOp :: Operator -> BaseType -> BaseType -> Either String BaseType
 -- mtx dimension check
 applyOp Add (Mtx lhs) (Mtx rhs)
-    | (ncols lhs <= ncols rhs) && (nrows lhs <= nrows rhs)
+    | (ncols lhs == ncols rhs) && (nrows lhs == nrows rhs)
     = return $ Mtx $ lhs + rhs
     | otherwise
     = Left
@@ -134,20 +134,20 @@ applyOp Add (Mtx lhs) (Mtx rhs)
         ++ " "
         ++ show (ncols rhs, nrows rhs)
 applyOp Sub (Mtx lhs) (Mtx rhs)
-    | (ncols lhs <= ncols rhs) && (nrows lhs <= nrows rhs)
+    | (ncols lhs == ncols rhs) && (nrows lhs == nrows rhs)
     = return $ Mtx $ lhs - rhs
     | otherwise
     = Left
-        $  "Unable to subtract differently sized matrices"
+        $  "Unable to subtract differently sized matrices: "
         ++ show (ncols lhs, nrows lhs)
         ++ " "
         ++ show (ncols rhs, nrows rhs)
 applyOp Mult (Mtx lhs) (Mtx rhs)
-    | (ncols lhs <= ncols rhs) && (nrows lhs <= nrows rhs)
+    | (ncols lhs == ncols rhs) && (nrows lhs == nrows rhs)
     = return $ Mtx lhs * Mtx rhs
     | otherwise
     = Left
-        $  "Unable to multiply differently sized matrices"
+        $  "Unable to multiply differently sized matrices: "
         ++ show (ncols lhs, nrows lhs)
         ++ " "
         ++ show (ncols rhs, nrows rhs)
@@ -159,7 +159,7 @@ applyOp MatrixMult (Mtx lhs) (Mtx rhs)
     = return $ Mtx $ lhs * rhs
     | otherwise
     = Left
-        $  "Unable to multiply unbalanced matrices"
+        $  "Unable to multiply unbalanced matrices.  cols lhs /= rows rhs: "
         ++ show (ncols lhs, nrows lhs)
         ++ " "
         ++ show (ncols rhs, nrows rhs)
