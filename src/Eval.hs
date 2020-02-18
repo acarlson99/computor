@@ -98,7 +98,7 @@ evalExpr st (Operation (op, lhs, rhs)) = do
     rhs' <- evalExpr st rhs
     case applyOp op lhs' rhs' of
         Right v -> return v
-        Left err -> Left $ err ++ " in expression `" ++ show lhs' ++ show op ++ show rhs' ++ "`"
+        Left err -> Left $ err ++ " in expression `" ++ show lhs' ++ ' ' : show op ++ ' ' : show rhs' ++ "`"
 
 -- ~ eVALEXPR = evalExpr
 

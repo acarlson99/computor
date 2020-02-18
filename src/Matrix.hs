@@ -10,6 +10,7 @@ module Matrix
     )
 where
 
+import           Data.List
 import           Control.Applicative
 
 data Matrix a = M { nrows :: Int
@@ -90,28 +91,5 @@ instance Num a => Num (Matrix a) where
 
 -- show
 
--- TODO: fix formatting
-prettyMatrix :: Show a => Matrix a -> String
-prettyMatrix m = concat
-    [ "┌ "
-    , unwords (replicate (ncols m) blank)
-    , " ┐\n"
-    , unlines
-        [ "│ "
-          ++ unwords
-                 (fmap (\j -> fill $ strings `mtxIdx` (i, j)) [1 .. ncols m])
-          ++ " │"
-        | i <- [1 .. nrows m]
-        ]
-    , "└ "
-    , unwords (replicate (ncols m) blank)
-    , " ┘"
-    ]
-  where
-    strings@(M _ _ v) = fmap show m
-    widest            = foldr max minBound $ fmap length v
-    fill str = replicate (widest - length str) ' ' ++ str
-    blank = fill ""
-
 instance Show a => Show (Matrix a) where
-    show = prettyMatrix
+    show m = "[" ++  (intercalate "; " $ map show $ getBody m) ++ "]"
