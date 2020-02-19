@@ -9,6 +9,7 @@ import qualified Poly.Solve                    as P
 
 import           Parse
 import           Eval
+import           State
 
 helpMsg :: String
 helpMsg =
@@ -35,7 +36,7 @@ helpMsg =
     \\t-        subtraction\n"
 
 -- run builtin commands
-evalCmd :: (Show t, Num t) => Cmd -> CalcState -> t -> IO ()
+evalCmd :: (Show t, Num t) => Cmd -> State -> t -> IO ()
 evalCmd Quit _  _  = return ()
 evalCmd Help st ln = do
     putStrLn helpMsg
@@ -49,7 +50,7 @@ evalCmd Dump  st ln = do
     interpretLn st ln
 
 -- evaluate parsed expression && call interpret on new state
-evalExpr :: (Show t, Num t) => [(ParseTree, String)] -> CalcState -> t -> IO ()
+evalExpr :: (Show t, Num t) => [(ParseTree, String)] -> State -> t -> IO ()
 evalExpr [(Command cmd, "")] st ln = evalCmd cmd st ln
 evalExpr expr state lnum =
     let res = eval expr state
@@ -62,7 +63,7 @@ evalExpr expr state lnum =
                 interpretLn state lnum
 
 -- read line, parse, evaluate, recurse
-interpretLn :: (Show t, Num t) => CalcState -> t -> IO ()
+interpretLn :: (Show t, Num t) => State -> t -> IO ()
 interpretLn state linenum = do
     maybeLine <- readline $ show linenum ++ "# "
     case maybeLine of
@@ -71,6 +72,18 @@ interpretLn state linenum = do
             addHistory ln
             evalExpr (readExpr ln) state (linenum + 1)
 
+presets :: [String]
+presets = [ "pi = 3.1415926535"
+          , "e = 2.71828"
+          , "identity2 = [[1,0];[0,1]]"
+          , "identity3 = [[1,0,0];[0,1,0];[0,0,1]]"
+          , "identity4 = [[1,0,0,0];[0,1,0,0];[0,0,1,0];[0,0,0,1]]"
+          , "sqrt(x) = x ^ (1./2.)" ]
+
 interpret :: [String] -> IO ()
-interpret ("help"     : _ ) = putStrLn helpMsg
-interpret _                 = interpretLn emptyState (0 :: Integer)
+interpret ("help" : _) = putStrLn helpMsg
+interpret ("nopreset" : _) = interpretLn emptyState (0 :: Integer)
+interpret _            =
+    case evalArr (map readExpr presets) emptyState of
+        Right st -> interpretLn st (0 :: Integer)
+        Left err -> putStrLn $ "ERROR LOADING PRESETS: " ++ err

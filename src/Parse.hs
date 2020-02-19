@@ -1,5 +1,6 @@
 module Parse
     ( readExpr
+    , parseIdentifier
     , parseArray
     , parseMatrix
     , module Parse.Types

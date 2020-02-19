@@ -1,50 +1,19 @@
 module Eval
     ( eval
-    , CalcState
-    , emptyState
+    , evalArr
     )
 where
 
-import qualified Data.Map                      as M
+import Control.Monad
 
 import           Util
 import           Matrix
+import           Math
+import           State
 
 import           Parse.Types
 
-import           Eval.Math
-
-data CalcState = CalcState { getFuncs :: M.Map String ([Ident], Expr)
-                           , getVars :: M.Map String BaseType }
-
-instance Show CalcState where
-    show st =
-        let fnc = M.toList $ getFuncs st
-            var = M.toList $ getVars st
-        in  foldr
-                    (\(n, (args, expr)) acc ->
-                        show (Defun (Ident n, args, expr)) ++ '\n' : acc
-                    )
-                    ""
-                    fnc
-                ++ foldr
-                       (\(n, expr) acc -> n ++ " = " ++ show expr ++ '\n' : acc)
-                       ""
-                       var
-
-emptyState :: CalcState
-emptyState = CalcState M.empty M.empty
-
-assignFun :: CalcState -> String -> ([Ident], Expr) -> CalcState
-assignFun st ident val =
-    CalcState (M.insert ident val (getFuncs st)) (getVars st)
-
-assignVar :: CalcState -> String -> BaseType -> CalcState
-assignVar st ident val =
-    CalcState (getFuncs st) (M.insert ident val (getVars st))
-
-
-evalArray :: CalcState -> Expr -> Either String [BaseType]
+evalArray :: State -> Expr -> Either String [BaseType]
 evalArray st (Array xs) = traverse (evalExpr st) xs
 evalArray _  n          = Left $ "Invalid type to evalArray " ++ show n
 
@@ -56,7 +25,7 @@ constructMtx xs   = do
         then Right $ fromLists xs
         else Left "Unable to construct matrix. Dimension mismatch"
 
-evalExpr :: CalcState -> Expr -> Either String BaseType
+evalExpr :: State -> Expr -> Either String BaseType
 -- primitives evaluate to themselves
 evalExpr _ (Primitive' n) = case n of
     (Number  n') -> return $ Int n'
@@ -64,8 +33,7 @@ evalExpr _ (Primitive' n) = case n of
     (Complex n') -> return $ Cpx n'
 -- identifiers query table of vars
 evalExpr st (Identifier (Ident ident)) =
-    maybeToEither ("undefined variable: " ++ ident) $ M.lookup ident $ getVars
-        st
+    maybeToEither ("undefined variable: " ++ ident) $ getVar st ident
 
 -- arrays/matrixs construct matrices
 evalExpr st (Array xs) = do
@@ -77,10 +45,8 @@ evalExpr st (Matrix xs) = do
 
 evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
     -- get function args and body or error if undefined
-    (args, body) <-
-        maybeToEither ("undefined function: " ++ ident)
-        $ M.lookup ident
-        $ getFuncs st
+    (args, body) <- maybeToEither ("undefined function: " ++ ident)
+        $ getFun st ident
     -- check arg list against supplied args
     if length xs /= length args
         then Left $ "Not enough arguments in function call: " ++ show
@@ -113,7 +79,7 @@ evalExpr st (Operation (op, lhs, rhs)) = do
 
 -- assignation, function definition, expression evaluation
 -- updates state with function defs, vars
-evalInput :: ParseTree -> CalcState -> Either String (CalcState, IO ())
+evalInput :: ParseTree -> State -> Either String (State, IO ())
 evalInput (Expr' expr) st = do
     res <- evalExpr st expr
     return (st, print res)
@@ -127,7 +93,7 @@ evalInput (Error str) _  = Left $ "unrecognized value " ++ str
 evalInput expr        st = return (st, print expr)
 
 -- match parsetree and evaluate, returning new state && IO
-eval :: [(ParseTree, String)] -> CalcState -> Either String (CalcState, IO ())
+eval :: [(ParseTree, String)] -> State -> Either String (State, IO ())
 eval [] st = return (st, return ())
 eval [(expr, x : xs)] _ =
     Left
@@ -139,3 +105,10 @@ eval [(expr, x : xs)] _ =
 eval (x : y : ys) _ =
     Left $ "WAIT WTF THIS SHOULD NOT HAPPEN" ++ show (x : y : ys)
 eval [(expr, "")] st = evalInput expr st
+
+evalArr :: [[(ParseTree,String)]] -> State -> Either String State
+evalArr [] st = return st
+evalArr xs st = foldM func st xs
+    where func st' expr = do
+                        (newSt,_) <- eval expr st'
+                        return newSt

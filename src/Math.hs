@@ -1,4 +1,4 @@
-module Eval.Math
+module Math
     ( BaseType(..)
     , applyOp
     )
