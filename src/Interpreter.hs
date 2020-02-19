@@ -4,6 +4,8 @@ module Interpreter
 where
 
 import           System.Console.Readline
+import           System.IO
+import           Control.Exception
 
 import qualified Poly.Solve                    as P
 
@@ -83,9 +85,28 @@ presets =
     , "float(x) = x * 1."
     ]
 
+f :: IOException -> IO (Either String State)
+f _ = return $ Left "Unable to open"
+
+interpretFile :: String -> State -> IO (Either String State)
+interpretFile x st = do
+    catch (withFile x ReadMode (\handle -> Left <$> hGetContents handle)) f
+
+loadFiles [] st = return $ Right st
+loadFiles (x:xs) st = do
+    newSt <- interpretFile x st
+    case newSt of
+        Right nst -> loadFiles xs st
+        Left err  -> return $ Left $ "ERR: " ++ err
+
 interpret :: [String] -> IO ()
 interpret ("help"     : _) = putStrLn helpMsg
 interpret ("nopreset" : _) = interpretLn emptyState (0 :: Integer)
-interpret _                = case evalArr (map readExpr presets) emptyState of
-    Right st  -> interpretLn st (0 :: Integer)
+interpret xs               = case evalArr (map readExpr presets) emptyState of
+    -- ~ Right st  -> interpretLn st (0 :: Integer)
+    Right st  -> do
+        newSt <- loadFiles xs st
+        case newSt of
+            Right nst -> interpretLn st (0 :: Integer)
+            Left err -> putStrLn err
     Left  err -> putStrLn $ "ERROR LOADING PRESETS: " ++ err
