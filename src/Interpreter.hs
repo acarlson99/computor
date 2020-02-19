@@ -73,17 +73,19 @@ interpretLn state linenum = do
             evalExpr (readExpr ln) state (linenum + 1)
 
 presets :: [String]
-presets = [ "pi = 3.1415926535"
-          , "e = 2.71828"
-          , "identity2 = [[1,0];[0,1]]"
-          , "identity3 = [[1,0,0];[0,1,0];[0,0,1]]"
-          , "identity4 = [[1,0,0,0];[0,1,0,0];[0,0,1,0];[0,0,0,1]]"
-          , "sqrt(x) = x ^ (1./2.)" ]
+presets =
+    [ "pi = 3.1415926535"
+    , "e = 2.71828"
+    , "identity2 = [[1,0];[0,1]]"
+    , "identity3 = [[1,0,0];[0,1,0];[0,0,1]]"
+    , "identity4 = [[1,0,0,0];[0,1,0,0];[0,0,1,0];[0,0,0,1]]"
+    , "sqrt(x) = x ^ (1./2.)"
+    , "float(x) = x * 1."
+    ]
 
 interpret :: [String] -> IO ()
-interpret ("help" : _) = putStrLn helpMsg
+interpret ("help"     : _) = putStrLn helpMsg
 interpret ("nopreset" : _) = interpretLn emptyState (0 :: Integer)
-interpret _            =
-    case evalArr (map readExpr presets) emptyState of
-        Right st -> interpretLn st (0 :: Integer)
-        Left err -> putStrLn $ "ERROR LOADING PRESETS: " ++ err
+interpret _                = case evalArr (map readExpr presets) emptyState of
+    Right st  -> interpretLn st (0 :: Integer)
+    Left  err -> putStrLn $ "ERROR LOADING PRESETS: " ++ err

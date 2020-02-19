@@ -4,7 +4,7 @@ module Eval
     )
 where
 
-import Control.Monad
+import           Control.Monad
 
 import           Util
 import           Matrix
@@ -106,9 +106,10 @@ eval (x : y : ys) _ =
     Left $ "WAIT WTF THIS SHOULD NOT HAPPEN" ++ show (x : y : ys)
 eval [(expr, "")] st = evalInput expr st
 
-evalArr :: [[(ParseTree,String)]] -> State -> Either String State
+evalArr :: [[(ParseTree, String)]] -> State -> Either String State
 evalArr [] st = return st
 evalArr xs st = foldM func st xs
-    where func st' expr = do
-                        (newSt,_) <- eval expr st'
-                        return newSt
+  where
+    func st' expr = do
+        (newSt, _) <- eval expr st'
+        return newSt
