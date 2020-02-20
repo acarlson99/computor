@@ -136,3 +136,4 @@ instance Show ParseTree where
         show f ++ "( " ++ show x ++ showSepList " , " xs ++ " ) = " ++ show rhs
     show (Command cmd) = show cmd
     show (Error   err) = "UNKNOWN VALUES: " ++ err
+    show EOL           = "EOL"

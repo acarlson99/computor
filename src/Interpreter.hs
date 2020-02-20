@@ -53,14 +53,14 @@ evalCmd :: (Show t, Num t) => Cmd -> State -> t -> IO ()
 evalCmd Quit _  _  = return ()
 evalCmd Help st ln = do
     putStrLn helpMsg
-    interpretLn st ln
+    interpretStdin st ln
 evalCmd (EvalPoly xs) st ln = do
     P.printRes $ P.solve xs
-    interpretLn st ln
-evalCmd Reset _  ln = interpretLn emptyState ln
+    interpretStdin st ln
+evalCmd Reset _  ln = interpretStdin emptyState ln
 evalCmd Dump  st ln = do
     print st
-    interpretLn st ln
+    interpretStdin st ln
 
 -- evaluate parsed expression && call interpret on new state
 evalExpr :: (Show t, Num t) => [(ParseTree, String)] -> State -> t -> IO ()
@@ -70,14 +70,14 @@ evalExpr expr state lnum =
     in  case res of
             Right (newSt, io) -> do
                 io
-                interpretLn newSt lnum
+                interpretStdin newSt lnum
             Left err -> do
                 putStrLn $ "ERROR: " ++ err
-                interpretLn state lnum
+                interpretStdin state lnum
 
 -- read line, parse, evaluate, recurse
-interpretLn :: (Show t, Num t) => State -> t -> IO ()
-interpretLn state linenum = do
+interpretStdin :: (Show t, Num t) => State -> t -> IO ()
+interpretStdin state linenum = do
     maybeLine <- readline $ show linenum ++ "# "
     case maybeLine of
         Nothing -> return ()
@@ -101,6 +101,7 @@ presets =
 
 interpretContents :: State -> String -> Handle -> IO (Either String State)
 interpretContents st filename hnd = do
+    -- use Strict to force file read while handle is open
     content <- lines <$> S.hGetContents hnd
     case evalArr (map readExpr content) st of
         Right newSt -> return $ Right newSt
@@ -109,6 +110,7 @@ interpretContents st filename hnd = do
 handleIOException :: IOException -> IO (Either String a)
 handleIOException err = return $ Left $ show err
 
+-- open file, evaluate state, return new state or error string
 interpretFile :: String -> State -> IO (Either String State)
 interpretFile x st =
     catch (withFile x ReadMode (interpretContents st x)) handleIOException
@@ -125,9 +127,11 @@ loadAndRun :: [String] -> State -> IO ()
 loadAndRun xs st = do
     nst <- loadFiles xs st
     case nst of
-        Right newSt -> interpretLn newSt (0 :: Integer)
+        Right newSt -> interpretStdin newSt (0 :: Integer)
         Left  err   -> putStrLn $ "Error loading file " ++ err
 
+-- run interpreter
+-- handle options, load files, call interpretStdin
 interpret :: [String] -> IO ()
 interpret ("--help" : _) = putStrLn helpMsg
 interpret ("--nopreset" : xs) = loadAndRun xs emptyState
