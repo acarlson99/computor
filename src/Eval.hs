@@ -90,6 +90,7 @@ evalInput (Assignment (Ident ident, body)) st = case evalExpr st body of
     Left err -> Left err
 evalInput (Error   str) _  = Left $ "unrecognized value " ++ str
 evalInput (Command cmd) st = return (st, print (Command cmd))
+evalInput EOL st = return (st, putStrLn "")
 
 -- match parsetree and evaluate, returning new state && IO
 eval :: [(ParseTree, String)] -> State -> Either String (State, IO ())

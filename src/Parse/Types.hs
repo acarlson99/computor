@@ -49,6 +49,7 @@ data ParseTree = Expr' Expr
                | Command Cmd
 
                | Error String
+               | EOL
                deriving (Eq)
 
 instance Num Primitive where

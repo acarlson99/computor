@@ -18,13 +18,19 @@ import           Parse.Types
 readExpr :: String -> [(ParseTree, String)]
 readExpr = parse parseLine
 
+parseComment :: Parser ParseTree
+parseComment = token (char '#') *> many (sat $ const True) *> return EOL
+
 parseLine :: Parser ParseTree
-parseLine =
-    parseCmd
+parseLine = do
+    line <- parseCmd
         <|> parseAssignment
         <|> parseDefun
         <|> (Expr' <$> parseExpr)
+        <|> parseComment
         <|> parseError
+    _ <- many parseComment
+    return line
 
 allTokens :: Parser Char
 allTokens = token $ sat $ const True
