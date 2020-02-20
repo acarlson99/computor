@@ -17,9 +17,7 @@ stack run -- --repl example/example1.txt
 
 ## Tools
 
-### TODO: add links here
-
-- Parsing.hs - Functional parsing library from chapter 13 of Programming in Haskell,
-- hlint - powerful linter `hlint src/ app/`
-- brittany - code formatter
-- stack - project manager
+- [Parsing.hs](https://www.youtube.com/watch?v=dDtZLm7HIJs) - Functional parsing library from chapter 13 of Programming in Haskell,
+- [hlint](https://hackage.haskell.org/package/hlint) - powerful linter `hlint src/ app/`
+- [brittany](https://hackage.haskell.org/package/brittany) - code formatter
+- [stack](https://docs.haskellstack.org/en/stable/README/) - project manager
