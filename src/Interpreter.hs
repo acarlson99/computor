@@ -16,7 +16,11 @@ import           State
 
 helpMsg :: String
 helpMsg =
-    "Commands:\n\
+    "Run:\n\
+    \\trepl --help        this help msg\n\
+    \\trepl --nopreset    skip preset function/var definitions\n\
+    \\trepl [files]     load files before entering repl\n\
+    \\nCommands:\n\
     \\t@help    help msg\n\
     \\t@quit    quit\n\
     \\t@dump    show all defined variables/functions\n\
@@ -27,6 +31,8 @@ helpMsg =
     \\tInt      -20\n\
     \\tFloat    3.5\n\
     \\tComplex  6.2i\n\
+    \\tComplex  i\n\
+    \\tComplex  -i\n\
     \\tMatrix   [[1, 2]; [3, 4]]\n\
     \\tMatrix   [1.3, 2i]; [3 + 2i, -4.3 - 2.2i]]\n\
     \\nOperations:\n\
@@ -122,9 +128,8 @@ loadAndRun xs st = do
         Left  err   -> putStrLn $ "Error loading file " ++ err
 
 interpret :: [String] -> IO ()
-interpret ("help" : _     ) = putStrLn helpMsg
-interpret ["nopreset"     ] = interpretLn emptyState (0 :: Integer)
-interpret ("nopreset" : xs) = loadAndRun xs emptyState
+interpret ("--help" : _     ) = putStrLn helpMsg
+interpret ("--nopreset" : xs) = loadAndRun xs emptyState
 interpret xs                = case evalArr (map readExpr presets) emptyState of
     Right st  -> loadAndRun xs st
     Left  err -> putStrLn $ "ERROR LOADING PRESETS: " ++ err
