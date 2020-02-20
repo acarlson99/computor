@@ -118,7 +118,7 @@ loadFiles (x : xs) st = do
     nst <- interpretFile x st
     case nst of
         Right newSt -> loadFiles xs newSt
-        Left  err -> return $ Left err
+        Left  err   -> return $ Left err
 
 loadAndRun :: [String] -> State -> IO ()
 loadAndRun xs st = do
@@ -128,8 +128,8 @@ loadAndRun xs st = do
         Left  err   -> putStrLn $ "Error loading file " ++ err
 
 interpret :: [String] -> IO ()
-interpret ("--help" : _     ) = putStrLn helpMsg
+interpret ("--help" : _) = putStrLn helpMsg
 interpret ("--nopreset" : xs) = loadAndRun xs emptyState
-interpret xs                = case evalArr (map readExpr presets) emptyState of
+interpret xs = case evalArr (map readExpr presets) emptyState of
     Right st  -> loadAndRun xs st
     Left  err -> putStrLn $ "ERROR LOADING PRESETS: " ++ err

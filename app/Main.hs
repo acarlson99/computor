@@ -17,7 +17,7 @@ runComp :: [String] -> IO ()
 runComp ("--help"     : _ ) = printUsage
 runComp ("--poly" : x : xs) = mapM_ (printRes . solve) $ x : xs
 runComp ("--repl"     : xs) = interpret xs
-runComp _                 = printUsage
+runComp _                   = printUsage
 
 main :: IO ()
 main = do

@@ -19,11 +19,12 @@ readExpr :: String -> [(ParseTree, String)]
 readExpr = parse parseLine
 
 parseComment :: Parser ParseTree
-parseComment = token (char '#') *> many (sat $ const True) *> return EOL
+parseComment = token (char '#') *> many (sat $ const True) $> EOL
 
 parseLine :: Parser ParseTree
 parseLine = do
-    line <- parseCmd
+    line <-
+        parseCmd
         <|> parseAssignment
         <|> parseDefun
         <|> (Expr' <$> parseExpr)
