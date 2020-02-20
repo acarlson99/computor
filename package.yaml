@@ -31,6 +31,7 @@ library:
   - regex-posix
   - containers
   - readline
+  - strict
 
 executables:
   computor-exe:

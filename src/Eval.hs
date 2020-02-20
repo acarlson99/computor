@@ -49,8 +49,7 @@ evalExpr st (Funcall (Fcall (Ident ident, xs))) = do
         $ getFun st ident
     -- check arg list against supplied args
     if length xs /= length args
-        then Left $ "Not enough arguments in function call: " ++ show
-            (Funcall (Fcall (Ident ident, xs)))
+        then Left $ "Invalid number of arguments in function call: " ++ show (Funcall (Fcall (Ident ident, xs))) ++ " expected " ++ show (length args) ++ " got " ++ show (length xs)
         else do
             -- evaluate args, erroring on failure
             newArgs <- mapM (evalExpr st) xs
@@ -89,8 +88,8 @@ evalInput (Assignment (Ident ident, body)) st = case evalExpr st body of
     Right v ->
         return (assignVar st ident v, putStrLn $ ident ++ " = " ++ show v)
     Left err -> Left err
-evalInput (Error str) _  = Left $ "unrecognized value " ++ str
-evalInput expr        st = return (st, print expr)
+evalInput (Error   str) _  = Left $ "unrecognized value " ++ str
+evalInput (Command cmd) st = return (st, print (Command cmd))
 
 -- match parsetree and evaluate, returning new state && IO
 eval :: [(ParseTree, String)] -> State -> Either String (State, IO ())

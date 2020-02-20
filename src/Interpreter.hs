@@ -5,6 +5,7 @@ where
 
 import           System.Console.Readline
 import           System.IO
+import qualified System.IO.Strict              as S
 import           Control.Exception
 
 import qualified Poly.Solve                    as P
@@ -21,21 +22,25 @@ helpMsg =
     \\t@dump    show all defined variables/functions\n\
     \\t@reset   clear all definitions\n\
     \\t@poly    evaluate polynomial\n\
-    \Data types:\n\
+    \\nData types:\n\
     \\tInt      5\n\
     \\tInt      -20\n\
     \\tFloat    3.5\n\
     \\tComplex  6.2i\n\
     \\tMatrix   [[1, 2]; [3, 4]]\n\
     \\tMatrix   [1.3, 2i]; [3 + 2i, -4.3 - 2.2i]]\n\
-    \Operations:\n\
+    \\nOperations:\n\
     \\t^        exponent\n\
     \\t**       matrix multiplication\n\
     \\t*        multiplication\n\
     \\t/        division\n\
     \\t%        mod (integers only)\n\
     \\t+        addition\n\
-    \\t-        subtraction\n"
+    \\t-        subtraction\n\
+    \\nAssignment:\n\
+    \\ta           = 42\n\
+    \\tf(a)        = a * 2\n\
+    \\tfunc(a,b,c) = a * b ^ c"
 
 -- run builtin commands
 evalCmd :: (Show t, Num t) => Cmd -> State -> t -> IO ()
@@ -85,28 +90,41 @@ presets =
     , "float(x) = x * 1."
     ]
 
-f :: IOException -> IO (Either String State)
-f _ = return $ Left "Unable to open"
+-- file IO
+
+interpretContents :: State -> String -> Handle -> IO (Either String State)
+interpretContents st filename hnd = do
+    content <- lines <$> S.hGetContents hnd
+    case evalArr (map readExpr content) st of
+        Right newSt -> return $ Right newSt
+        Left  err   -> return $ Left $ filename ++ ": " ++ err
+
+handleIOException :: IOException -> IO (Either String a)
+handleIOException err = return $ Left $ show err
 
 interpretFile :: String -> State -> IO (Either String State)
-interpretFile x st = do
-    catch (withFile x ReadMode (\handle -> Left <$> hGetContents handle)) f
+interpretFile x st =
+    catch (withFile x ReadMode (interpretContents st x)) handleIOException
 
-loadFiles [] st = return $ Right st
-loadFiles (x:xs) st = do
-    newSt <- interpretFile x st
-    case newSt of
-        Right nst -> loadFiles xs st
-        Left err  -> return $ Left $ "ERR: " ++ err
+loadFiles :: [String] -> State -> IO (Either String State)
+loadFiles []       st = return $ Right st
+loadFiles (x : xs) st = do
+    nst <- interpretFile x st
+    case nst of
+        Right newSt -> loadFiles xs newSt
+        Left  err -> return $ Left err
+
+loadAndRun :: [String] -> State -> IO ()
+loadAndRun xs st = do
+    nst <- loadFiles xs st
+    case nst of
+        Right newSt -> interpretLn newSt (0 :: Integer)
+        Left  err   -> putStrLn $ "Error loading file " ++ err
 
 interpret :: [String] -> IO ()
-interpret ("help"     : _) = putStrLn helpMsg
-interpret ("nopreset" : _) = interpretLn emptyState (0 :: Integer)
-interpret xs               = case evalArr (map readExpr presets) emptyState of
-    -- ~ Right st  -> interpretLn st (0 :: Integer)
-    Right st  -> do
-        newSt <- loadFiles xs st
-        case newSt of
-            Right nst -> interpretLn st (0 :: Integer)
-            Left err -> putStrLn err
+interpret ("help" : _     ) = putStrLn helpMsg
+interpret ["nopreset"     ] = interpretLn emptyState (0 :: Integer)
+interpret ("nopreset" : xs) = loadAndRun xs emptyState
+interpret xs                = case evalArr (map readExpr presets) emptyState of
+    Right st  -> loadAndRun xs st
     Left  err -> putStrLn $ "ERROR LOADING PRESETS: " ++ err
