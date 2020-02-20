@@ -7,8 +7,6 @@ module Parse.Primitives
     )
 where
 
-import           Data.Functor
-
 import           Parsing
 
 import qualified Complex                       as C
@@ -37,12 +35,9 @@ intAsFloat :: Parser Float
 intAsFloat = fromIntegral <$> int
 
 comp :: Parser (C.Complex Float)
-comp =
-    C.complex
-        <$> (float <|> intAsFloat)
-        <*  char 'i'
-        <|> (string "-i" $> C.Complex (0, -1))
-        <|> (char 'i' $> C.Complex (0, 1))
+comp = C.complex <$> (float <|> intAsFloat) <* char 'i'
+        -- <|> (string "-i" $> C.Complex (0, -1))
+        -- <|> (char 'i' $> C.Complex (0, 1))
 
 complex :: Parser (C.Complex Float)
 complex = token comp

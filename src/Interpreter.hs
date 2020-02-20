@@ -31,8 +31,8 @@ helpMsg =
     \\tInt      -20\n\
     \\tFloat    3.5\n\
     \\tComplex  6.2i\n\
-    \\tComplex  i\n\
-    \\tComplex  -i\n\
+    \\tComplex  1i\n\
+    \\tComplex  -3i\n\
     \\tMatrix   [[1, 2]; [3, 4]]\n\
     \\tMatrix   [1.3, 2i]; [3 + 2i, -4.3 - 2.2i]]\n\
     \\nOperations:\n\
@@ -89,6 +89,7 @@ presets :: [String]
 presets =
     [ "pi = 3.1415926535"
     , "e = 2.71828"
+    , "i = 1i"
     , "identity2 = [[1,0];[0,1]]"
     , "identity3 = [[1,0,0];[0,1,0];[0,0,1]]"
     , "identity4 = [[1,0,0,0];[0,1,0,0];[0,0,1,0];[0,0,0,1]]"
