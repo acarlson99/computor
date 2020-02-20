@@ -7,7 +7,7 @@ import           Interpreter
 
 printUsage :: IO ()
 printUsage = do
-    putStrLn "usage: stack run --(help|poly|repl) [args]"
+    putStrLn "usage: stack run -- --(help|poly|repl) [args]"
     putStrLn "       --poly - evaluate polynomial"
     putStrLn "                stack run poly \"3X^2 + 2X = -4\""
     putStrLn "       --repl - run repl"

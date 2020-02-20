@@ -17,9 +17,9 @@ import           State
 helpMsg :: String
 helpMsg =
     "Run:\n\
-    \\trepl --help        this help msg\n\
-    \\trepl --nopreset    skip preset function/var definitions\n\
-    \\trepl [files]     load files before entering repl\n\
+    \\trepl --help          this help msg\n\
+    \\trepl --nopreset      skip preset function/var definitions\n\
+    \\trepl [files]         load files before entering repl\n\
     \\nCommands:\n\
     \\t@help    help msg\n\
     \\t@quit    quit\n\
