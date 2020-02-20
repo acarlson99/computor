@@ -1,14 +1,11 @@
 TODO:
-    - lexer:
-        - fix spacing. "12i12i12i" should
-            return [(Complex (0,12), "12i12i")]
-        - fix weird spacing
     - add tests for order of operations
-    - add builtins (sin,cos,map,etc.)
-    - add eval/preload file evaluation
 
 DONE:
     - lexer:
+        - fix weird spacing
+        - fix spacing. "12i12i12i" should
+            return [(Complex (0,12), "12i12i")]
         - fix Parse.Types, add sub-types (num contains number,float,etc.)
         - implement:
             - funcall
@@ -32,3 +29,5 @@ DONE:
     - implement operations
     - implement checks for matrix math && div/mod by 0
     - implement matrix module
+    - add builtins (sin,cos,map,etc.)
+    - add eval/preload file evaluation
