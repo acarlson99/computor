@@ -191,8 +191,31 @@ applyOp Div (Cpx lhs) (Cpx rhs) = Cpx . complexDiv lhs <$> checkZero
     (invalidParameters Div (Cpx lhs) (Cpx rhs) ++ " divisor must be non-zero")
     rhs
     0
-applyOp Exp (Cpx lhs) rhs       = Left $ invalidTypes Exp (Cpx lhs) rhs
-applyOp Exp lhs       (Cpx rhs) = Left $ invalidTypes Exp lhs (Cpx rhs)
+-- ~ applyOp Exp (Cpx lhs) rhs       = Left $ invalidTypes Exp (Cpx lhs) rhs
+-- ~ applyOp Exp (Cpx lhs) (Int 1)       =  (Cpx lhs)
+applyOp Exp (Cpx lhs) (Int n)
+    | n > 1
+    = applyOp Exp (Cpx (lhs * lhs)) (Int (n - 1))
+    | n == 1
+    = return $ Cpx lhs
+    | n == 0
+    = return $ (Cpx (C.Complex (1, 0)))
+    | otherwise
+    = Left
+        $  invalidParameters Exp (Cpx lhs) (Int n)
+        ++ " exponent must be non-negative"
+applyOp Exp (Cpx lhs) (Flt n)
+    | n > 1
+    = applyOp Exp (Cpx (lhs * lhs)) (Flt (n - 1))
+    | n == 1
+    = return $ Cpx lhs
+    | n == 0
+    = return $ (Cpx (C.Complex (1, 0)))
+    | otherwise
+    = Left
+        $  invalidParameters Exp (Cpx lhs) (Flt n)
+        ++ " exponent must be non-negative"
+applyOp Exp lhs (Cpx rhs) = Left $ invalidTypes Exp lhs (Cpx rhs)
 applyOp op (Int lhs) (Cpx rhs) =
     applyOp op (Cpx $ C.Complex (fromIntegral lhs, 0)) (Cpx rhs)
 applyOp op (Cpx lhs) (Int rhs) =

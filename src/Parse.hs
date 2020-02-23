@@ -122,12 +122,9 @@ operand =
 
 
 {-
-TODO: add operator precedence
-
 ^           -- exponent
 ** * / %    -- mtx-mult/multiplication/division/mod
 + -         -- addition/subtraction
-
 -}
 
 parseOp' :: Monad m => m Expr -> m Operator -> m Expr -> m Expr
