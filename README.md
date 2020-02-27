@@ -1,6 +1,6 @@
 # computor
 
-It's a calculator
+Turing complete calculator
 
 ```
 stack build
