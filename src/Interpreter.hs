@@ -35,7 +35,7 @@ helpMsg =
     \\tComplex  -3i\n\
     \\tMatrix   [[1, 2]; [3, 4]]\n\
     \\tMatrix   [1.3, 2i]; [3 + 2i, -4.3 - 2.2i]]\n\
-    \\nOperations:\n\
+    \\nMathematical Operations:\n\
     \\t^        exponent\n\
     \\t**       matrix multiplication\n\
     \\t*        multiplication\n\
@@ -43,10 +43,23 @@ helpMsg =
     \\t%        mod (integers only)\n\
     \\t+        addition\n\
     \\t-        subtraction\n\
+    \\nComparators:\n\
+    \\t<        lt\n\
+    \\t>        gt\n\
+    \\t==       eq\n\
+    \\t<=       leq\n\
+    \\t>=       geq\n\
+    \\nLogical operators:\n\
+    \\t||       or\n\
+    \\t&&       and\n\
     \\nAssignment:\n\
     \\ta           = 42\n\
     \\tf(a)        = a * 2\n\
-    \\tfunc(a,b,c) = a * b ^ c"
+    \\tfunc(a,b,c) = a * b ^ c\n\
+    \\nConditionals:\n\
+    \\t{cond} then else\n\
+    \\tmin(a,b) = {a < b} a b\n\
+    \\tfact(x) = { x < 1 } 1 (x * f(x-1))"
 
 -- run builtin commands
 evalCmd :: (Show t, Num t) => Cmd -> State -> t -> IO ()
@@ -95,7 +108,9 @@ presets =
     , "identity3 = [[1,0,0];[0,1,0];[0,0,1]]"
     , "identity4 = [[1,0,0,0];[0,1,0,0];[0,0,1,0];[0,0,0,1]]"
     , "sqrt(x) = x ^ (1./2.)"
-    , "float(x) = x * 1."
+    , "min(a,b) = {a < b} a b"
+    , "max(a,b) = {a > b} a b"
+    , "fact(x) = { x < 1 } 1 (x * fact(x-1))"
     ]
 
 -- file IO
