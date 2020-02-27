@@ -24,6 +24,15 @@ data Operator = Add
                | Exp
                | Mod
                | MatrixMult
+
+               | Lt
+               | Gt
+               | Eq
+               | Leq
+               | Geq
+               | Or
+               | And
+
                | Other String
                deriving (Eq)
 
@@ -103,6 +112,16 @@ instance Show Operator where
     show Exp        = "^"
     show MatrixMult = "**"
     show Mod        = "%"
+
+    show Lt = "<"
+    show Gt = ">"
+    show Eq = "=="
+    show Leq = "<="
+    show Geq = ">="
+
+    show Or = "||"
+    show And = "&&"
+
     show (Other s)  = s
 
 instance Show Ident where

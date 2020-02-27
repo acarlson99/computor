@@ -83,6 +83,7 @@ interpretStdin state linenum = do
         Nothing -> return ()
         Just ln -> do
             addHistory ln
+            print $ readExpr ln
             evalExpr (readExpr ln) state (linenum + 1)
 
 presets :: [String]

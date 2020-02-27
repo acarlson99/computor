@@ -16,7 +16,7 @@ import           Control.Applicative
 data Matrix a = M { nrows :: Int
                   , ncols :: Int
                   , getBody :: [[a]]
-                  } deriving (Eq)
+                  } deriving (Eq,Ord)
 
 -- construct
 

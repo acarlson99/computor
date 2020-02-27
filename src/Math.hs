@@ -13,7 +13,7 @@ data BaseType = Int Int
               | Flt Float
               | Cpx (C.Complex Float)
               | Mtx (Matrix BaseType)
-              deriving (Eq)
+              deriving (Eq,Ord)
 
 instance Show BaseType where
     show (Int n) = show n
@@ -153,6 +153,15 @@ applyOp MatrixMult (Mtx lhs) (Mtx rhs)
 applyOp Add  lhs       rhs       = return $ lhs + rhs
 applyOp Sub  lhs       rhs       = return $ lhs - rhs
 applyOp Mult lhs       rhs       = return $ lhs * rhs
+-- comparators
+applyOp Lt   lhs       rhs       = return $ if lhs < rhs then 1 else 0
+applyOp Gt   lhs       rhs       = return $ if lhs > rhs then 1 else 0
+applyOp Eq   lhs       rhs       = return $ if lhs == rhs then 1 else 0
+applyOp Leq  lhs       rhs       = return $ if lhs <= rhs then 1 else 0
+applyOp Geq  lhs       rhs       = return $ if lhs >= rhs then 1 else 0
+-- logic
+applyOp Or lhs rhs = return $ if lhs /= 0 || rhs /= 0 then 1 else 0
+applyOp And lhs rhs = return $ if lhs /= 0 && rhs /= 0 then 1 else 0
 
 -- int
 applyOp Div  (Int lhs) (Int rhs) = Int . div lhs <$> checkZero

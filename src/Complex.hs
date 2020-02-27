@@ -4,7 +4,7 @@ module Complex
     )
 where
 
-newtype Complex a = Complex (a,a) deriving (Eq)
+newtype Complex a = Complex (a,a) deriving (Eq,Ord)
 
 instance (Floating a) => Num (Complex a) where
     Complex (a, b) + Complex (c, d) = Complex (a + c, b + d)

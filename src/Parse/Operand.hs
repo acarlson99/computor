@@ -29,6 +29,16 @@ strToOperator "*"  = Mult
 strToOperator "/"  = Div
 strToOperator "^"  = Exp
 strToOperator "%"  = Mod
+-- comparators
+strToOperator "<"  = Lt
+strToOperator ">"  = Gt
+strToOperator "==" = Eq
+strToOperator "<=" = Leq
+strToOperator ">=" = Geq
+-- logical operations
+strToOperator "||" = Or
+strToOperator "&&" = And
+-- err
 strToOperator s    = Other s
 
 parseOperator :: Parser Operator

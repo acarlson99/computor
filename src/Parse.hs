@@ -145,7 +145,24 @@ parseOp' lhsf opf rhsf = do
     return $ Operation (op, lhs, rhs)
 
 operation :: Parser Expr
-operation = operation1
+operation = logOper
+
+logOp :: Parser String
+logOp = string "||"
+    <|> string "&&"
+
+parseLogOp :: Parser Operator
+parseLogOp = strToOperator <$> token logOp
+
+operator0 :: Parser String
+operator0 = string ">="
+        <|> string "<="
+        <|> string "<"
+        <|> string ">"
+        <|> string "=="
+
+parseOperator0 :: Parser Operator
+parseOperator0 = strToOperator <$> token operator0 -- TODO: make strToOperator op0
 
 operator1 :: Parser String
 operator1 = string "+" <|> string "-"
@@ -165,18 +182,35 @@ operator3 = string "^"
 parseOperator3 :: Parser Operator
 parseOperator3 = strToOperator <$> token operator3
 
+-- && ||
+logOper :: Parser Expr
+logOper =
+    parseOp' operation0 parseLogOp (logOper <|> operand)
+        <|> operation0
+        <|> parseOp' operand parseLogOp (operation0 <|> operand)
+
+-- comparators
+operation0 :: Parser Expr
+operation0 =
+    parseOp' operation1 parseOperator0 (operation0 <|> operand)
+        <|> operation1
+        <|> parseOp' operand parseOperator0 (operation0 <|> operand)
+
+-- + -
 operation1 :: Parser Expr
 operation1 =
     parseOp' operation2 parseOperator1 (operation1 <|> operand)
         <|> operation2
         <|> parseOp' operand parseOperator1 (operation1 <|> operand)
 
+-- * / ** %
 operation2 :: Parser Expr
 operation2 =
     parseOp' operation3 parseOperator2 (operation2 <|> operand)
         <|> operation3
         <|> parseOp' operand parseOperator2 (operation2 <|> operand)
 
+-- ^
 operation3 :: Parser Expr
 operation3 = parseOp' operand parseOperator3 (operation3 <|> operand)
 
