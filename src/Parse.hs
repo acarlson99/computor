@@ -70,11 +70,21 @@ parseExpr :: Parser Expr
 parseExpr =
     token
         $   parseOperation
+        <|> parseConditional
         <|> parseFuncall
         <|> (Primitive' <$> parsePrimitive)
         <|> parseMatrix
         <|> parseIdentifier
         <|> parseParenExpr
+
+parseConditional :: Parser Expr
+parseConditional = do
+    _ <- token $ char '{'
+    cond <- parseExpr
+    _ <- token $ char '}'
+    good <- parseExpr
+    bad <- parseExpr
+    return $ Cond cond good bad
 
 parseParenExpr :: Parser Expr
 parseParenExpr = char '(' *> parseExpr <* char ')'

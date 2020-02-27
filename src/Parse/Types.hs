@@ -33,6 +33,7 @@ data Primitive = Number Int
                deriving (Eq)
 
 data Expr = Primitive' Primitive
+          | Cond Expr Expr Expr                 -- {Cond} (Good) (Bad)
           | Identifier Ident
 
           | Array [Expr]
@@ -119,6 +120,7 @@ instance Show Primitive where
 
 instance Show Expr where
     show (Primitive' prim    ) = show prim
+    show (Cond c good bad    ) = '{' : show c ++ "} " ++ show good ++ ' ' : show bad
     show (Identifier idn     ) = show idn
     show (Array      (x : xs)) = '[' : show x ++ showSepList ", " xs ++ "]"
     show (Array      []      ) = "[]"

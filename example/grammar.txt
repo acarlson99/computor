@@ -13,6 +13,7 @@ EXPR:
     | \(EXPR\)
 
 OPERAND:
+    | {EXPR} EXPR EXPR
     | FUNCALL
     | PRIMITIVE
     | ARRAY

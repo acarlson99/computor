@@ -31,6 +31,11 @@ evalExpr _ (Primitive' n) = case n of
     (Number  n') -> return $ Int n'
     (Float   n') -> return $ Flt n'
     (Complex n') -> return $ Cpx n'
+-- conditional evaluation
+evalExpr st (Cond c good bad) = do
+    cres <- evalExpr st c
+    if cres == 0 then evalExpr st bad
+    else evalExpr st good
 -- identifiers query table of vars
 evalExpr st (Identifier (Ident ident)) =
     maybeToEither ("undefined variable: " ++ ident) $ getVar st ident
