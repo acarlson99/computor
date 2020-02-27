@@ -208,7 +208,7 @@ applyOp Exp (Cpx lhs) (Int n)
     | n == 1
     = return $ Cpx lhs
     | n == 0
-    = return $ (Cpx (C.Complex (1, 0)))
+    = return $ Cpx (C.Complex (1, 0))
     | otherwise
     = Left
         $  invalidParameters Exp (Cpx lhs) (Int n)
@@ -219,7 +219,7 @@ applyOp Exp (Cpx lhs) (Flt n)
     | n == 1
     = return $ Cpx lhs
     | n == 0
-    = return $ (Cpx (C.Complex (1, 0)))
+    = return $ Cpx (C.Complex (1, 0))
     | otherwise
     = Left
         $  invalidParameters Exp (Cpx lhs) (Flt n)

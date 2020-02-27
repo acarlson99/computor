@@ -113,14 +113,14 @@ instance Show Operator where
     show MatrixMult = "**"
     show Mod        = "%"
 
-    show Lt = "<"
-    show Gt = ">"
-    show Eq = "=="
-    show Leq = "<="
-    show Geq = ">="
+    show Lt         = "<"
+    show Gt         = ">"
+    show Eq         = "=="
+    show Leq        = "<="
+    show Geq        = ">="
 
-    show Or = "||"
-    show And = "&&"
+    show Or         = "||"
+    show And        = "&&"
 
     show (Other s)  = s
 
@@ -138,8 +138,9 @@ instance Show Primitive where
     show (Complex cplx) = show cplx
 
 instance Show Expr where
-    show (Primitive' prim    ) = show prim
-    show (Cond c good bad    ) = '{' : show c ++ "} " ++ show good ++ ' ' : show bad
+    show (Primitive' prim) = show prim
+    show (Cond c good bad) =
+        '{' : show c ++ "} " ++ show good ++ ' ' : show bad
     show (Identifier idn     ) = show idn
     show (Array      (x : xs)) = '[' : show x ++ showSepList ", " xs ++ "]"
     show (Array      []      ) = "[]"

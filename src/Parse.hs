@@ -79,12 +79,11 @@ parseExpr =
 
 parseConditional :: Parser Expr
 parseConditional = do
-    _ <- token $ char '{'
+    _    <- token $ char '{'
     cond <- parseExpr
-    _ <- token $ char '}'
+    _    <- token $ char '}'
     good <- parseExpr
-    bad <- parseExpr
-    return $ Cond cond good bad
+    Cond cond good <$> parseExpr
 
 parseParenExpr :: Parser Expr
 parseParenExpr = char '(' *> parseExpr <* char ')'
@@ -148,18 +147,14 @@ operation :: Parser Expr
 operation = logOper
 
 logOp :: Parser String
-logOp = string "||"
-    <|> string "&&"
+logOp = string "||" <|> string "&&"
 
 parseLogOp :: Parser Operator
 parseLogOp = strToOperator <$> token logOp
 
 operator0 :: Parser String
-operator0 = string ">="
-        <|> string "<="
-        <|> string "<"
-        <|> string ">"
-        <|> string "=="
+operator0 =
+    string ">=" <|> string "<=" <|> string "<" <|> string ">" <|> string "=="
 
 parseOperator0 :: Parser Operator
 parseOperator0 = strToOperator <$> token operator0 -- TODO: make strToOperator op0
