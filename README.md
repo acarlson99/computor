@@ -27,7 +27,7 @@ stack run -- --repl example/example1.txt    # load specified file
 | `@quit`                                   | quit                                 |
 | `@dump`                                   | show all defined variables/functions |
 | `@reset`                                  | clear all definitions                |
-| `@poly`                                   | evaluate polynomial                  |
+| `@poly X^2 + 2X = 7`                      | evaluate polynomial                  |
 | `1 ^ 2` `3i ^ 2`                          | exponent                             |
 | `[[1,2]] ** [[3];[4]]`                    | matrix multiplication                |
 | `9 * 4`                                   | multiplication                       |
