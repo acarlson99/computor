@@ -76,6 +76,10 @@ parseExpr =
         <|> parseMatrix
         <|> parseIdentifier
         <|> parseParenExpr
+        <|> do
+                _    <- token (char '-')
+                expr <- parseExpr
+                return $ Operation (Mult, expr, Primitive' $ Number (-1))
 
 parseConditional :: Parser Expr
 parseConditional = do

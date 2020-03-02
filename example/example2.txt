@@ -36,3 +36,5 @@ f2(y) = f(y * 2)
 
 f2(4)
 # 10
+
+factorial(n) = {n <= 0} 1 (factorial(n-1) * n)

@@ -96,7 +96,6 @@ interpretStdin state linenum = do
         Nothing -> return ()
         Just ln -> do
             addHistory ln
-            print $ readExpr ln
             evalExpr (readExpr ln) state (linenum + 1)
 
 presets :: [String]
@@ -104,13 +103,18 @@ presets =
     [ "pi = 3.1415926535"
     , "e = 2.71828"
     , "i = 1i"
+    , "true = 1"
+    , "false = 0"
+    , "meaningoflife = 42"
     , "identity2 = [[1,0];[0,1]]"
     , "identity3 = [[1,0,0];[0,1,0];[0,0,1]]"
     , "identity4 = [[1,0,0,0];[0,1,0,0];[0,0,1,0];[0,0,0,1]]"
+    , "float(n) = n + 0.0"
     , "sqrt(x) = x ^ (1./2.)"
     , "min(a,b) = {a < b} a b"
     , "max(a,b) = {a > b} a b"
     , "fact(x) = { x < 1 } 1 (x * fact(x-1))"
+    , "not(n) = {n} 0 1"
     ]
 
 -- file IO
