@@ -23,11 +23,11 @@ stack run -- --repl example/example1.txt    # load specified file
 
 | Commands/Operators                        |                                      |
 |-------------------------------------------|--------------------------------------|
-| @help                                     | help msg                             |
-| @quit                                     | quit                                 |
-| @dump                                     | show all defined variables/functions |
-| @reset                                    | clear all definitions                |
-| @poly                                     | evaluate polynomial                  |
+| `@help`                                   | help msg                             |
+| `@quit`                                   | quit                                 |
+| `@dump`                                   | show all defined variables/functions |
+| `@reset`                                  | clear all definitions                |
+| `@poly`                                   | evaluate polynomial                  |
 | `1 ^ 2` `3i ^ 2`                          | exponent                             |
 | `[[1,2]] ** [[3];[4]]`                    | matrix multiplication                |
 | `9 * 4`                                   | multiplication                       |
