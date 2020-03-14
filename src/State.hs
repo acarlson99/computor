@@ -13,7 +13,7 @@ import           Parse.Types
 import           Math                           ( BaseType )
 
 data State = State { getFuncs :: M.Map String ([Ident], Expr)
-                           , getVars :: M.Map String BaseType }
+                   , getVars  :: M.Map String BaseType }
 
 instance Show State where
     show st =
