@@ -3,6 +3,7 @@ module Parse
     , parseIdentifier
     , parseArray
     , parseMatrix
+    , parseOperation
     , module Parse.Types
     )
 where
@@ -50,9 +51,10 @@ parseCmd =
            <|> parseCmdReset
            )
 
+----------------------------------- commands -----------------------------------
+
 parseCmdQuit :: Parser ParseTree
 parseCmdQuit = (string "quit" <|> string "exit") $> Command Quit
-
 
 parseCmdHelp :: Parser ParseTree
 parseCmdHelp = string "help" $> Command Help
@@ -65,6 +67,8 @@ parseCmdReset = string "reset" $> Command Reset
 
 parseCmdDump :: Parser ParseTree
 parseCmdDump = string "dump" $> Command Dump
+
+------------------------------------- expr -------------------------------------
 
 parseExpr :: Parser Expr
 parseExpr =
@@ -91,6 +95,8 @@ parseConditional = do
 
 parseParenExpr :: Parser Expr
 parseParenExpr = char '(' *> parseExpr <* char ')'
+
+----------------------------- assignment/function ------------------------------
 
 assignment :: Parser (Ident, Expr)
 assignment = do
@@ -125,116 +131,6 @@ defun =
 parseDefun :: Parser ParseTree
 parseDefun = Defun <$> token defun
 
-operand :: Parser Expr
-operand =
-    parseFuncall
-        <|> (Primitive' <$> parsePrimitive)
-        <|> parseIdentifier
-        <|> parseMatrix
-        <|> parseParenExpr      -- handle paren for cases like (1+2)^3
-
-
----------------------------------- operators -----------------------------------
-
-{-
-^           -- exponent
-** * / %    -- mtx-mult/multiplication/division/mod
-+ -         -- addition/subtraction
-< > <= >=   -- comparators
-|| &&       -- and/or
--}
-
-operation :: Parser Expr
-operation = logOper
-
-logOp :: Parser String
-logOp = string "||" <|> string "&&"
-
-parseLogOp :: Parser Operator
-parseLogOp = strToOperator <$> token logOp
-
-operator0 :: Parser String
-operator0 =
-    string ">=" <|> string "<=" <|> string "<" <|> string ">" <|> string "=="
-
-parseOperator0 :: Parser Operator
-parseOperator0 = strToOperator <$> token operator0
-
-operator1 :: Parser String
-operator1 = string "+" <|> string "-"
-
-parseOperator1 :: Parser Operator
-parseOperator1 = strToOperator <$> token operator1
-
-operator2 :: Parser String
-operator2 = string "**" <|> string "*" <|> string "/" <|> string "%"
-
-parseOperator2 :: Parser Operator
-parseOperator2 = strToOperator <$> token operator2
-
-operator3 :: Parser String
-operator3 = string "^"
-
-parseOperator3 :: Parser Operator
-parseOperator3 = strToOperator <$> token operator3
-
---------------------------- operations PEMDAS/BEDMAS ---------------------------
-
--- `rhsf` should ONLY consume the token used as rhs of the expression
--- in expression `1 - 2 - 3 - 4` functions should consume `1` `-` `2` only
-parseOpLeftAssoc :: (Monad m, Alternative m) => m Expr -> m Operator -> m Expr -> m Expr
-parseOpLeftAssoc lhsf opf rhsf = do
-    lhs <- lhsf
-    maybeAddSuffix lhs lhsf opf rhsf
-  where
-    addSuffix lhs' lhsf' opf' rhsf' = do
-        op  <- opf'
-        rhs <- rhsf'
-        maybeAddSuffix (Operation (op, lhs', rhs)) lhsf' opf' rhsf'
-    maybeAddSuffix e lhsf' opf' rhsf' = addSuffix e lhsf' opf' rhsf' <|> return e
-
--- && ||
-logOper :: Parser Expr
-logOper =
-    parseOpLeftAssoc operation0 parseLogOp (operation0 <|> operand)
-        <|> operation0
-        <|> parseOpLeftAssoc operand parseLogOp (operation0 <|> operand)
-
--- comparators
-operation0 :: Parser Expr
-operation0 =
-    parseOpLeftAssoc operation1 parseOperator0 (operation1 <|> operand)
-        <|> operation1
-        <|> parseOpLeftAssoc operand parseOperator0 (operation1 <|> operand)
-
--- + -
-operation1 :: Parser Expr
-operation1 =
-    parseOpLeftAssoc operation2 parseOperator1 (operation2 <|> operand)
-        <|> operation2
-        <|> parseOpLeftAssoc operand parseOperator1 (operation2 <|> operand)
-
--- * / ** %
-operation2 :: Parser Expr
-operation2 =
-    parseOpLeftAssoc operation3 parseOperator2 (operation3 <|> operand)
-        <|> operation3
-        <|> parseOpLeftAssoc operand parseOperator2 (operation3 <|> operand)
-
--- ^
--- to make right-associative
-operation3 :: Parser Expr
-operation3 = do
-    lhs <- operand
-    op  <- parseOperator3
-    rhs <- (operation3 <|> operand)
-    return $ Operation (op, lhs, rhs)
-
-parseOperation :: Parser Expr
-parseOperation = token operation
-
---------------------------------------------------------------------------------
-
 funcall :: Parser (Ident, [Expr])
 funcall =
     let f = parseIdent <* char '('
@@ -253,6 +149,8 @@ parseFcall = Fcall <$> token funcall
 
 parseFuncall :: Parser Expr
 parseFuncall = Funcall <$> parseFcall
+
+--------------------------------- array/matrix ---------------------------------
 
 parseArrOnDelim :: Char -> Parser a -> Parser [a]
 parseArrOnDelim delim fn =
@@ -284,3 +182,113 @@ parseIdent = Ident <$> identifier
 
 parseIdentifier :: Parser Expr
 parseIdentifier = Identifier <$> parseIdent
+
+---------------------------------- operators -----------------------------------
+
+{-
+^           -- exponent
+** * / %    -- mtx-mult/multiplication/division/mod
++ -         -- addition/subtraction
+< > <= >=   -- comparators
+|| &&       -- and/or
+-}
+
+logOperator :: Parser String
+logOperator = string "||" <|> string "&&"
+
+parseLogOperator :: Parser Operator
+parseLogOperator = strToOperator <$> token logOperator
+
+
+compOperator :: Parser String
+compOperator =
+    string ">=" <|> string "<=" <|> string "<" <|> string ">" <|> string "=="
+
+parseCompOperator :: Parser Operator
+parseCompOperator = strToOperator <$> token compOperator
+
+
+addSubOperator :: Parser String
+addSubOperator = string "+" <|> string "-"
+
+parseAddSubOperator :: Parser Operator
+parseAddSubOperator = strToOperator <$> token addSubOperator
+
+
+mulDivOperator :: Parser String
+mulDivOperator = string "**" <|> string "*" <|> string "/" <|> string "%"
+
+parseMulDivOperator :: Parser Operator
+parseMulDivOperator = strToOperator <$> token mulDivOperator
+
+
+expOperator :: Parser String
+expOperator = string "^"
+
+parseExpOperator :: Parser Operator
+parseExpOperator = strToOperator <$> token expOperator
+
+--------------------------- operations PEMDAS/BEDMAS ---------------------------
+
+operand :: Parser Expr
+operand =
+    parseFuncall
+        <|> (Primitive' <$> parsePrimitive)
+        <|> parseIdentifier
+        <|> parseMatrix
+        <|> parseParenExpr      -- handle paren for cases like (1+2)^3
+
+operation :: Parser Expr
+operation = logOper
+
+parseOperation :: Parser Expr
+parseOperation = token operation
+
+
+-- `rhsf` should ONLY consume the token used as rhs of the expression
+-- in expression `1 - 2 - 3 - 4` functions should consume `1` `-` `2` only
+parseOpLeftAssoc
+    :: (Monad m, Alternative m) => m Expr -> m Operator -> m Expr -> m Expr
+parseOpLeftAssoc lhsf opf rhsf = do
+    lhs <- lhsf
+    maybeAddSuffix lhs lhsf opf rhsf
+  where
+    addSuffix lhs' lhsf' opf' rhsf' = do
+        op  <- opf'
+        rhs <- rhsf'
+        maybeAddSuffix (Operation (op, lhs', rhs)) lhsf' opf' rhsf'
+    maybeAddSuffix e lhsf' opf' rhsf' =
+        addSuffix e lhsf' opf' rhsf' <|> return e
+
+-- recursively parses given operand, operator, and next level of precedence
+createParser
+    :: (Alternative f, Monad f) => f Expr -> f Operator -> f Expr -> f Expr
+createParser operandF opF nextF =
+    parseOpLeftAssoc nextF opF (nextF <|> operandF)
+        <|> nextF
+        <|> parseOpLeftAssoc operandF opF (nextF <|> operandF)
+
+-- && ||
+logOper :: Parser Expr
+logOper = createParser operand parseLogOperator compOper
+
+-- comparators
+compOper :: Parser Expr
+compOper = createParser operand parseCompOperator addSubOper
+
+-- + -
+addSubOper :: Parser Expr
+addSubOper = createParser operand parseAddSubOperator mulDivOper
+
+-- * / ** %
+mulDivOper :: Parser Expr
+mulDivOper = createParser operand parseMulDivOperator expOper
+
+-- ^
+-- to make right-associative
+expOper :: Parser Expr
+expOper = do
+    lhs <- operand
+    op  <- parseExpOperator
+    rhs <- (expOper <|> operand)
+    return $ Operation (op, lhs, rhs)
