@@ -290,5 +290,5 @@ expOper :: Parser Expr
 expOper = do
     lhs <- operand
     op  <- parseExpOperator
-    rhs <- (expOper <|> operand)
+    rhs <- expOper <|> operand
     return $ Operation (op, lhs, rhs)
