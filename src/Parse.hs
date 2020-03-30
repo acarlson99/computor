@@ -134,18 +134,15 @@ operand =
         <|> parseParenExpr      -- handle paren for cases like (1+2)^3
 
 
+---------------------------------- operators -----------------------------------
+
 {-
 ^           -- exponent
 ** * / %    -- mtx-mult/multiplication/division/mod
 + -         -- addition/subtraction
+< > <= >=   -- comparators
+|| &&       -- and/or
 -}
-
-parseOp' :: Monad m => m Expr -> m Operator -> m Expr -> m Expr
-parseOp' lhsf opf rhsf = do
-    lhs <- lhsf
-    op  <- opf
-    rhs <- rhsf
-    return $ Operation (op, lhs, rhs)
 
 operation :: Parser Expr
 operation = logOper
@@ -161,7 +158,7 @@ operator0 =
     string ">=" <|> string "<=" <|> string "<" <|> string ">" <|> string "=="
 
 parseOperator0 :: Parser Operator
-parseOperator0 = strToOperator <$> token operator0 -- TODO: make strToOperator op0
+parseOperator0 = strToOperator <$> token operator0
 
 operator1 :: Parser String
 operator1 = string "+" <|> string "-"
@@ -181,40 +178,62 @@ operator3 = string "^"
 parseOperator3 :: Parser Operator
 parseOperator3 = strToOperator <$> token operator3
 
+--------------------------- operations PEMDAS/BEDMAS ---------------------------
+
+-- `rhsf` should ONLY consume the token used as rhs of the expression
+-- in expression `1 - 2 - 3 - 4` functions should consume `1` `-` `2` only
+parseOpLeftAssoc :: (Monad m, Alternative m) => m Expr -> m Operator -> m Expr -> m Expr
+parseOpLeftAssoc lhsf opf rhsf = do
+    lhs <- lhsf
+    maybeAddSuffix lhs lhsf opf rhsf
+  where
+    addSuffix lhs' lhsf' opf' rhsf' = do
+        op  <- opf'
+        rhs <- rhsf'
+        maybeAddSuffix (Operation (op, lhs', rhs)) lhsf' opf' rhsf'
+    maybeAddSuffix e lhsf' opf' rhsf' = addSuffix e lhsf' opf' rhsf' <|> return e
+
 -- && ||
 logOper :: Parser Expr
 logOper =
-    parseOp' operation0 parseLogOp (logOper <|> operand)
+    parseOpLeftAssoc operation0 parseLogOp (operation0 <|> operand)
         <|> operation0
-        <|> parseOp' operand parseLogOp (operation0 <|> operand)
+        <|> parseOpLeftAssoc operand parseLogOp (operation0 <|> operand)
 
 -- comparators
 operation0 :: Parser Expr
 operation0 =
-    parseOp' operation1 parseOperator0 (operation0 <|> operand)
+    parseOpLeftAssoc operation1 parseOperator0 (operation1 <|> operand)
         <|> operation1
-        <|> parseOp' operand parseOperator0 (operation0 <|> operand)
+        <|> parseOpLeftAssoc operand parseOperator0 (operation1 <|> operand)
 
 -- + -
 operation1 :: Parser Expr
 operation1 =
-    parseOp' operation2 parseOperator1 (operation1 <|> operand)
+    parseOpLeftAssoc operation2 parseOperator1 (operation2 <|> operand)
         <|> operation2
-        <|> parseOp' operand parseOperator1 (operation1 <|> operand)
+        <|> parseOpLeftAssoc operand parseOperator1 (operation2 <|> operand)
 
 -- * / ** %
 operation2 :: Parser Expr
 operation2 =
-    parseOp' operation3 parseOperator2 (operation2 <|> operand)
+    parseOpLeftAssoc operation3 parseOperator2 (operation3 <|> operand)
         <|> operation3
-        <|> parseOp' operand parseOperator2 (operation2 <|> operand)
+        <|> parseOpLeftAssoc operand parseOperator2 (operation3 <|> operand)
 
 -- ^
+-- to make right-associative
 operation3 :: Parser Expr
-operation3 = parseOp' operand parseOperator3 (operation3 <|> operand)
+operation3 = do
+    lhs <- operand
+    op  <- parseOperator3
+    rhs <- (operation3 <|> operand)
+    return $ Operation (op, lhs, rhs)
 
 parseOperation :: Parser Expr
 parseOperation = token operation
+
+--------------------------------------------------------------------------------
 
 funcall :: Parser (Ident, [Expr])
 funcall =
