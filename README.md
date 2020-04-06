@@ -50,9 +50,13 @@ stack run -- --repl example/example1.txt    # load specified file
 
 - readline (readline-devel)
 
+## Resources
+
+- [parsing tutorial](https://en.wikibooks.org/wiki/Write_Yourself_a_Scheme_in_48_Hours/Parsing) - Quick tutorial for writing a Scheme parser using Parsec
+- [Parsing.hs](https://www.youtube.com/watch?v=dDtZLm7HIJs) - Linked in this helpful computerphile video about parsing in Haskell
+
 ## Tools
 
-- [Parsing.hs](https://www.youtube.com/watch?v=dDtZLm7HIJs) - Functional parser combinator library from chapter 13 of Programming in Haskell,
 - [hlint](https://hackage.haskell.org/package/hlint) - powerful linter `hlint src/ app/`
 - [brittany](https://hackage.haskell.org/package/brittany) - code formatter
 - [stack](https://docs.haskellstack.org/en/stable/README/) - project manager
