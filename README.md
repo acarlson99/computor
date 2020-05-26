@@ -6,13 +6,15 @@ Turing complete calculator built in haskell using a small [parser combinator](ht
 
 ```
 stack build
-stack run -- --help                         # help
-stack run -- --poly "3X + 2X^2 = 4"         # solve polynomial
-stack run -- --poly "X^2 + 2X + 2 = 0"
-stack run -- --repl --help                  # help
-stack run -- --repl --nopreset              # skip loading preset function/var definitions
-stack run -- --repl example/example1.txt    # load specified file
+stack run help                          # help
+stack run poly "3X + 2X^2 = 4"          # solve polynomial
+stack run poly "X^2 + 2X + 2 = 0"
+stack run repl help                     # help
+stack run repl nopreset                 # skip loading preset function/var definitions
+stack run repl example/example1.txt     # load specified file
 ```
+
+### REPL
 
 | Data types |                                                         |
 |------------|---------------------------------------------------------|

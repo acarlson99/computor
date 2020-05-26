@@ -28,13 +28,13 @@ helpMsg =
     \\t@poly    evaluate polynomial\n\
     \\nData types:\n\
     \\tInt      5\n\
-    \\tInt      -20\n\
+    \\t         -20\n\
     \\tFloat    3.5\n\
     \\tComplex  6.2i\n\
-    \\tComplex  1i\n\
-    \\tComplex  -3i\n\
+    \\t         1i\n\
+    \\t         -3i\n\
     \\tMatrix   [[1, 2]; [3, 4]]\n\
-    \\tMatrix   [1.3, 2i]; [3 + 2i, -4.3 - 2.2i]]\n\
+    \\t         [1.3, 2i]; [3 + 2i, -4.3 - 2.2i]]\n\
     \\nMathematical Operations:\n\
     \\t^        exponent\n\
     \\t**       matrix multiplication\n\
@@ -72,7 +72,7 @@ evalCmd (EvalPoly xs) st ln = do
     interpretStdin st ln
 evalCmd Reset _  ln = interpretStdin emptyState ln
 evalCmd Dump  st ln = do
-    print st
+    putStr $ show st
     interpretStdin st ln
 
 -- evaluate parsed expression && call interpret on new state
