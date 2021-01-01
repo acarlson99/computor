@@ -2,6 +2,10 @@
 
 Turing complete calculator built in haskell using a small [parser combinator](https://en.wikipedia.org/wiki/Parser_combinator) library
 
+## Dependencies
+
+- readline (readline-devel)
+
 ## Usage
 
 ```
@@ -47,10 +51,6 @@ stack run repl example/example1.txt     # load specified file
 | `a = 42`                                  | assignment                           |
 | `f(a) = a * 2` `f(a,b,c) = a+b+c`         | function definition                  |
 | `{1==1} (1) (0)` `min(a,b) = {a < b} a b` | conditional                          |
-
-## Dependencies
-
-- readline (readline-devel)
 
 ## Resources
 
